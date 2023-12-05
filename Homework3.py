@@ -95,34 +95,29 @@ def interior_try(A, B, lambd):
     return 0
 
 
-image_size = 28  # width and length
-no_of_different_labels = 10  #  i.e. 0, 1, 2, 3, ..., 9
-image_pixels = image_size * image_size
-# data_path = "data/mnist/"
+#load the data
 train_data = np.loadtxt("mnist_train.csv",
                         delimiter=",")
-test_data = np.loadtxt("mnist_test.csv",
-                       delimiter=",")
-
 
 fac = 0.99 / 255
-train_imgs = np.asfarray(train_data[:, 1:]) * fac + 0.01
-#train_imgs2 = np.asfarray(train_data) * fac + 0.01
-test_imgs = np.asfarray(test_data[:, 1:]) * fac + 0.01
+
+# find the max number of data in A and B
 count = np.zeros(10)
 for line in train_data:
-    count[int(line[0])] +=1
-print(count)
+    count[int(line[0])] += 1
 min = np.min(count[1:])
 if min*9 > count[0]:
     min = count[0]//9
-print(min)
-count = np.ones(10)*min
-count[0] *= 9
-totalcount=9*min
-print(count)
+
+
+# make sure we have the same length in A and B and equally distributed digits in B
 A_data = np.zeros((int(min*9), len(train_data[0])))
 B_data = np.zeros((int(min*9), len(train_data[0])))
+
+count = np.ones(10)*min # count the number of digit i at index [i]
+count[0] *= 9 # 9x more of 0
+totalcount = 9*min # count the lines in B
+
 for line in train_data:
     if line[0] == 0.:
         if count[0] != 0:
@@ -133,30 +128,11 @@ for line in train_data:
             B_data[int(9*min-totalcount)] = line
             count[int(line[0])] -= 1
             totalcount -= 1
-print(A_data)
 A_imgs = np.asfarray(A_data[:, 1:]) * fac + 0.01
 B_imgs = np.asfarray(B_data[:, 1:]) * fac + 0.01
 
-print(f"train img{train_imgs}")
-#print(f"train img{train_imgs2}")
-print(f"test img {test_imgs}")
-train_labels = np.asfarray(train_data[:, :1])
-test_labels = np.asfarray(test_data[:, :1])
-print(f"labels A{train_labels}")
-print(f"labels B{test_labels}")
 
-lr = np.arange(no_of_different_labels)
-print(f"lr :{lr}")
 
-# transform labels into one hot representation
-train_labels_one_hot = (lr == train_labels).astype(float)
-test_labels_one_hot = (lr == test_labels).astype(float)
-
-# we don't want zeroes and ones in the labels neither:
-train_labels_one_hot[train_labels_one_hot == 0] = 0.01
-train_labels_one_hot[train_labels_one_hot == 1] = 0.99
-test_labels_one_hot[test_labels_one_hot == 0] = 0.01
-test_labels_one_hot[test_labels_one_hot == 1] = 0.99
 
 
 for i in range(10):
@@ -168,10 +144,7 @@ for i in range(10):
     plt.imshow(img, cmap="Greys")
     plt.show()
 
-A = train_labels_one_hot
-B = test_labels_one_hot
-print(f"A: {A}")
-print(f"B: {B}")
+
 # Assuming you have loaded the MNIST data into A and B
 # A contains zero digits, and B contains the other digits
 
