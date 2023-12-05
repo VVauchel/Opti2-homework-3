@@ -141,8 +141,15 @@ n_a = len(A)
 
     # Number of points in B
 n_b = len(B)
-F = Barrier(lambd,n,n_a,n_b)
+
+# Define the variables of the problem
+mu = symbols("mu")
 h, c, p, s, t = Define_symbols(n,n_a,n_b)
+
+# Define the function to minimize at each step
+F = p/mu + Barrier(lambd,n,n_a,n_b)
+
+# Define it numerically
 num_F = lambdify((h, c, p, s, t), F, 'numpy')
 
 gradF = [diff(F, p)]
