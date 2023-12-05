@@ -1,4 +1,5 @@
 import numpy as np
+import dill
 import matplotlib.pyplot as plt
 import time
 from sympy import symbols, lambdify, log, diff
@@ -150,8 +151,20 @@ h, c, p, s, t = Define_symbols(n,n_a,n_b)
 F = p/mu + Barrier(lambd,n,n_a,n_b)
 
 # Define it numerically
-num_F = lambdify((h, c, p, s, t), F, 'numpy')
+num_F = lambdify((h, c, p, s, t, mu), F, 'numpy')
 
+# Save the function to a file
+with open('my_function.pkl', 'wb') as file:
+    dill.dump(num_F, file)
+
+# Now, in a different script, you can load the function
+with open('my_function.pkl', 'rb') as file:
+    loaded_function = dill.load(file)
+
+# Use the loaded function
+print("Result using the loaded function:", loaded_function)
+
+'''
 gradF = [diff(F, p)]
 gradF += [diff(F, h[i]) for i in range(n)]
 gradF += [diff(F, c)]
@@ -159,7 +172,7 @@ gradF += [diff(F, s[i]) for i in range(n_a)]
 gradF += [diff(F, t[i]) for i in range(n_b)]
 
 num_gradF = lambdify((h, c, p, s, t), gradF, 'numpy')
+'''
 
-print(gradF)
 
 
