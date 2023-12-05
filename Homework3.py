@@ -184,7 +184,7 @@ start_time = time.time()
 h, c, obj = interior_point_method(A_imgs, B_imgs, lambd)
 
 # Output the results
-print(f"Optimal h: {h}")
+#print(f"Optimal h: {h}")
 print(f"Optimal c: {c}")
 print(f"Optimal obj: {obj}")
 print(f"Total CPU time: {time.time() - start_time} seconds")
