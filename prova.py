@@ -15,16 +15,21 @@ test_data = np.loadtxt(data_path + "mnist_test.csv",
 
 # Extract 0s from the training set
 A = train_data[train_data[:,0] == 0.]
-# Delete the first column
-A = A[0:5:,1:]
-A = A[:,0:10]
 
+# Delete the first column
+A = A[0:5,1:]
+
+# Only keep some columns such that first element is non zero (for start 10 of them)
+non_zero_ind = np.nonzero(A[0,:])[0]
+indices = np.random.choice(non_zero_ind, size=10, replace=False)
+A = A[:,indices]
 
 # Extract non-0s
 B = train_data[train_data[:,0] != 0.]
 # Delete first column
 B = B[0:5,1:]
-B = B[:,0:10]
+# Keep the same columns you kept in A
+B = B[:,indices]
 
 
 '''# Assuming you have loaded the MNIST data into A and B
@@ -89,8 +94,8 @@ def Barrier(lambd,n,n_a,n_b):
 
     # Define the self concordant barrier
     F = 0
-    F = F - sum(log(si) for si in s)
-    F = F - sum(log(ti) for ti in t)
+    F = F - sum(log(s[i]) for i in range(n_a))
+    F = F - sum(log(t[i]) for i in range(n_b))
     F = F - sum(log(-1 + s[i] - sum(h[j]*A[i,j] for j in range(n)) - c) for i in range(n_a))
     F = F - sum(log(sum(h[j]*B[i,j] for j in range(n)) + c - 1 + t[i]) for i in range(n_b))
     F = F - log(p - Objective(lambd,n,n_a,n_b))
@@ -103,9 +108,7 @@ def Objective(lambd,n,n_a,n_b):
     # Define Symbols
     h, c, p, s, t = Define_symbols(n,n_a,n_b)
 
-    G = 0
-    G = G + sum((h[i]**2) for i in range(n))
-    G = G + lambd*G
+    G = lambd*sum((h[i]**2) for i in range(n))
     G = G + sum(s[i] for i in range(len(s)))/len(s)
     G = G + sum(t[i] for i in range(len(t)))/len(t)
     return G
@@ -207,7 +210,7 @@ def damped_N(grad, Hess, x0, n, n_a, n_b, mu=2):
 
     # Evaluate Hessian at x0
     H = np.array(num_Hess(mu, h, c, p, s, t))
-    print(np.linalg.eigvals(H))
+    #print(np.linalg.eigvals(H))
     # Evaluate newton step
     n = - np.linalg.solve(H, G)
 
@@ -227,16 +230,15 @@ def damped_N(grad, Hess, x0, n, n_a, n_b, mu=2):
     return x, delta
 
 
+
 # Define gradient of F
 gradF = Differenciate(F,n,n_a,n_b)
-for i in len(gradF):
-    print(gradF[i])
+'''for i in range(len(gradF)):
+    print(gradF[i])'''
 # Make the gradient a callable function
 num_gradF = lambdify((mu, h, c, p, s, t), gradF, 'numpy')
 
 #print(len(num_gradF(1, [0 for i in range(n)], 0, 5, [2 for i in range(n_a)], [2 for i in range(n_b)])))
-
-
 
 
 
@@ -245,9 +247,9 @@ HessF = []
 for i in range(len(gradF)):
     new_row = Differenciate(gradF[i],n,n_a,n_b)
     HessF +=  [new_row]
-for i in range(len(HessF)):
+'''for i in range(len(HessF)):
     for j in range(len(HessF)):
-        print(HessF[i,j])
+        print(HessF[i,j])'''
 
 # Make Hessian a callable function
 num_HessF = lambdify((mu, h, c, p, s, t), HessF, 'numpy')
@@ -282,3 +284,5 @@ print(x0)
 H = num_HessF(1, [0 for i in range(n)], 0, 5, [2 for i in range(n_a)], [2 for i in range(n_b)])
 print(H)
 print(np.array(H).shape)'''
+
+
