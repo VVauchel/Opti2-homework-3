@@ -151,7 +151,7 @@ h, c, p, s, t = Define_symbols(n,n_a,n_b)
 F = p/mu + Barrier(lambd,n,n_a,n_b)
 
 # Define it numerically
-num_F = lambdify((h, c, p, s, t, mu), F, 'numpy')
+num_F = lambdify((mu, h, c, p, s, t), F, 'numpy')
 
 # Save the function to a file
 with open('my_function.pkl', 'wb') as file:
@@ -179,26 +179,106 @@ def Differenciate(func,n,n_a,n_b):
 
     return grad
 
+
+
+def damped_N(grad, Hess, x0, n, n_a, n_b, mu=2):
+    '''Evaluate 1 damped newton step, in particular:
+    if delta less then 1 return x0 and delta
+    else perform a damped newton step and return new x and 1'''
+
+    # Define symbols
+    mu_ = symbols("mu")
+    h, c, p, s, t = Define_symbols(n, n_a, n_b)
+
+    # Make the gradient a callable function
+    num_grad = lambdify((mu_, h, c, p, s, t), grad, 'numpy')
+    # Make Hessian a callable function
+    num_Hess = lambdify((mu_, h, c, p, s, t), Hess, 'numpy')
+
+    # Extract variables
+    h = x0[:n]
+    c = x0[n]
+    p = x0[n + 1]
+    s = x0[n + 2:n + 2 + n_a]
+    t = x0[n + 2 + n_a:]
+
+    # Evaluate gradient at x0
+    G = np.array(num_grad(mu, h, c, p, s, t))
+
+    # Evaluate Hessian at x0
+    H = np.array(num_Hess(mu, h, c, p, s, t))
+    print(np.linalg.eigvals(H))
+    # Evaluate newton step
+    n = - np.linalg.solve(H, G)
+
+    # Evaluate delta
+    #    print(G)
+    #    print(np.dot(G, -n))
+    delta = np.sqrt(np.dot(G,-n))
+
+    # Break if delta is less then 1
+    if delta < 1:
+        return x0, delta
+
+    # Evaluate new x
+    x = x0 + (1+delta)**(-1)*n
+
+    # Attentiom: returned delta is the one associated to x0, not to x
+    return x, delta
+
+
 # Define gradient of F
 gradF = Differenciate(F,n,n_a,n_b)
-
+for i in len(gradF):
+    print(gradF[i])
 # Make the gradient a callable function
 num_gradF = lambdify((mu, h, c, p, s, t), gradF, 'numpy')
 
 #print(len(num_gradF(1, [0 for i in range(n)], 0, 5, [2 for i in range(n_a)], [2 for i in range(n_b)])))
+
+
+
+
 
 # Define the Hessian of F
 HessF = []
 for i in range(len(gradF)):
     new_row = Differenciate(gradF[i],n,n_a,n_b)
     HessF +=  [new_row]
+for i in range(len(HessF)):
+    for j in range(len(HessF)):
+        print(HessF[i,j])
 
 # Make Hessian a callable function
 num_HessF = lambdify((mu, h, c, p, s, t), HessF, 'numpy')
+
+# Define feasible x0 and try to compute a damped newton step
+x0 = [0 for i in range(n)] + [0] + [5] + [2 for i in range(n_a)] + [2 for i in range(n_b)]
+
+'''
+# Extract variables
+h = x0[:n]
+c = x0[n]
+p = x0[n + 1]
+s = x0[n + 2:n + 2 + n_a]
+t = x0[n + 2 + n_a:]
+
+#print(num_HessF(1,h,c,p,s,t))
+#print(np.array(num_HessF(1,h,c,p,s,t)))
+H = np.array(num_HessF(1,h,c,p,s,t))
+print(type(H))
+print(np.array_equal(H, H.T))
+print(np.linalg.eigvals(H))
+'''
+
+
+delta = 1
+while delta >= 1:
+    x0, delta = damped_N(gradF, HessF, x0, n, n_a, n_b)
+    print(delta)
+print(x0)
 
 ''' Testing...
 H = num_HessF(1, [0 for i in range(n)], 0, 5, [2 for i in range(n_a)], [2 for i in range(n_b)])
 print(H)
 print(np.array(H).shape)'''
-
-
