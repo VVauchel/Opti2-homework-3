@@ -164,15 +164,41 @@ with open('my_function.pkl', 'rb') as file:
 # Use the loaded function
 print("Result using the loaded function:", loaded_function)
 
-'''
-gradF = [diff(F, p)]
-gradF += [diff(F, h[i]) for i in range(n)]
-gradF += [diff(F, c)]
-gradF += [diff(F, s[i]) for i in range(n_a)]
-gradF += [diff(F, t[i]) for i in range(n_b)]
+def Differenciate(func,n,n_a,n_b):
+    '''Differenciate wrt (p, h, c, s, t)'''
 
-num_gradF = lambdify((h, c, p, s, t), gradF, 'numpy')
-'''
+    # Define symbols
+    h, c, p, s, t = Define_symbols(n, n_a, n_b)
 
+    # Define the gradient of func
+    grad = [diff(func, p)]
+    grad += [diff(func, h[i]) for i in range(n)]
+    grad += [diff(func, c)]
+    grad += [diff(func, s[i]) for i in range(n_a)]
+    grad += [diff(func, t[i]) for i in range(n_b)]
+
+    return grad
+
+# Define gradient of F
+gradF = Differenciate(F,n,n_a,n_b)
+
+# Make the gradient a callable function
+num_gradF = lambdify((mu, h, c, p, s, t), gradF, 'numpy')
+
+#print(len(num_gradF(1, [0 for i in range(n)], 0, 5, [2 for i in range(n_a)], [2 for i in range(n_b)])))
+
+# Define the Hessian of F
+HessF = []
+for i in range(len(gradF)):
+    new_row = Differenciate(gradF[i],n,n_a,n_b)
+    HessF +=  [new_row]
+
+# Make Hessian a callable function
+num_HessF = lambdify((mu, h, c, p, s, t), HessF, 'numpy')
+
+''' Testing...
+H = num_HessF(1, [0 for i in range(n)], 0, 5, [2 for i in range(n_a)], [2 for i in range(n_b)])
+print(H)
+print(np.array(H).shape)'''
 
 
