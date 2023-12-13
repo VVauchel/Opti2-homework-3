@@ -184,7 +184,7 @@ def Differenciate(func,n,n_a,n_b):
 
 
 
-def damped_N(grad, Hess, x0, n, n_a, n_b, mu=2):
+def damped_N(grad, Hess, x0, n, n_a, n_b, mu=1):
     '''Evaluate 1 damped newton step, in particular:
     if delta less then 1 return x0 and delta
     else perform a damped newton step and return new x and 1'''
@@ -202,15 +202,15 @@ def damped_N(grad, Hess, x0, n, n_a, n_b, mu=2):
     h = x0[:n]
     c = x0[n]
     p = x0[n + 1]
-    s = x0[n + 2:n + 2 + n_a]
-    t = x0[n + 2 + n_a:]
+    s = x0[n+2:n + 2 + n_a]
+    t = x0[n+2+n_a:]
 
     # Evaluate gradient at x0
     G = np.array(num_grad(mu, h, c, p, s, t))
 
     # Evaluate Hessian at x0
     H = np.array(num_Hess(mu, h, c, p, s, t))
-    #print(np.linalg.eigvals(H))
+    print(np.linalg.eigvals(H))
     # Evaluate newton step
     n = - np.linalg.solve(H, G)
 
@@ -224,7 +224,7 @@ def damped_N(grad, Hess, x0, n, n_a, n_b, mu=2):
         return x0, delta
 
     # Evaluate new x
-    x = x0 + (1+delta)**(-1)*n
+    x = x0 + n/(1+delta)
 
     # Attentiom: returned delta is the one associated to x0, not to x
     return x, delta
@@ -272,13 +272,27 @@ print(type(H))
 print(np.array_equal(H, H.T))
 print(np.linalg.eigvals(H))
 '''
-
-
+# Extract variables
+h = x0[:n]
+c = x0[n]
+p = x0[n + 1]
+s = x0[n + 2:n + 2 + n_a]
+t = x0[n + 2 + n_a:]
+# Initial mu
+mu = 3
+print(f'F = {num_F(mu, h, c, p, s, t)}')
 delta = 1
 while delta >= 1:
-    x0, delta = damped_N(gradF, HessF, x0, n, n_a, n_b)
-    print(delta)
-print(x0)
+    x0, delta = damped_N(gradF, HessF, x0, n, n_a, n_b,mu)
+    # Extract variables
+    h = x0[:n]
+    c = x0[n]
+    p = x0[n + 1]
+    s = x0[n + 2:n + 2 + n_a]
+    t = x0[n + 2 + n_a:]
+
+    print(f'F = {num_F(mu, h, c, p, s, t)}')
+    print(f'delta = {delta}')
 
 ''' Testing...
 H = num_HessF(1, [0 for i in range(n)], 0, 5, [2 for i in range(n_a)], [2 for i in range(n_b)])
