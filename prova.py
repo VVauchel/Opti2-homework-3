@@ -106,6 +106,7 @@ def Barrier(lambd,n,n_a,n_b):
     v += n_b
     F = F - log(p - Objective(lambd, n, n_a, n_b))
     v += 1
+    print(f'v : {v}')
     return F, v
 
 def Objective(lambd,n,n_a,n_b):
@@ -117,7 +118,7 @@ def Objective(lambd,n,n_a,n_b):
     O = lambd*sum((h[i]**2) for i in range(n))
     O = O + sum(s[i] for i in range(len(s)))/len(s)
     O = O + sum(t[i] for i in range(len(t)))/len(t)
-    return G
+    return O
 
 def initialization_sspf(F, gradF, HessF, n, n_a, n_b):
     '''First draft: chose an interior point x_0 and find a mu_0 such that 
