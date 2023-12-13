@@ -14,22 +14,22 @@ test_data = np.loadtxt(data_path + "mnist_test.csv",
                        delimiter=",")
 
 # Extract 0s from the training set
-A = train_data[train_data[:,0] == 0.]
+A = train_data[train_data[:, 0] == 0.]
 
 # Delete the first column
-A = A[0:5,1:]
+A = A[0:5, 1:]
 
 # Only keep some columns such that first element is non zero (for start 10 of them)
-non_zero_ind = np.nonzero(A[0,:])[0]
+non_zero_ind = np.nonzero(A[0, :])[0]
 indices = np.random.choice(non_zero_ind, size=10, replace=False)
-A = A[:,indices]
+A = A[:, indices]
 
 # Extract non-0s
-B = train_data[train_data[:,0] != 0.]
+B = train_data[train_data[:, 0] != 0.]
 # Delete first column
-B = B[0:5,1:]
+B = B[0:5, 1:]
 # Keep the same columns you kept in A
-B = B[:,indices]
+B = B[:, indices]
 
 
 '''# Assuming you have loaded the MNIST data into A and B
@@ -49,7 +49,7 @@ def short_path_method(A,B,lambd):
     '''
 
     # Number of features
-    n = len(A[0,:])
+    n = len(A[0, :])
 
     # Number of points in A
     n_a = len(A)
@@ -65,7 +65,7 @@ def short_path_method(A,B,lambd):
 
 
     # Define the self concordant barrier with sympy
-    F = Barrier(h, c, s, t, p)
+    F,v = Barrier(h, c, s, t, p)
 
     # Initialize with x_0 and mu_0
     x_0, mu_0 = initialization_sspf(F, n, n_a, n_b)
@@ -75,7 +75,7 @@ def short_path_method(A,B,lambd):
 
     return 1
 
-def Define_symbols(n,n_a,n_b):
+def Define_symbols(n, n_a, n_b):
 
     # Define the simbols:
     h = symbols('h1:%d' % (n + 1))  # h as an n-dimensional vector
@@ -89,28 +89,34 @@ def Barrier(lambd,n,n_a,n_b):
     '''Self concordant barrier'''
 
     # Define Symbols
-    h, c, p, s, t = Define_symbols(n,n_a,n_b)
+    h, c, p, s, t = Define_symbols(n, n_a, n_b)
 
 
     # Define the self concordant barrier
     F = 0
-    F = F - sum(log(s[i]) for i in range(n_a))
-    F = F - sum(log(t[i]) for i in range(n_b))
-    F = F - sum(log(-1 + s[i] - sum(h[j]*A[i,j] for j in range(n)) - c) for i in range(n_a))
-    F = F - sum(log(sum(h[j]*B[i,j] for j in range(n)) + c - 1 + t[i]) for i in range(n_b))
-    F = F - log(p - Objective(lambd,n,n_a,n_b))
+    v = 0
 
-    return F
+    F = F - sum(log(s[i]) for i in range(n_a))
+    v += n_a
+    F = F - sum(log(t[i]) for i in range(n_b))
+    v += n_b
+    F = F - sum(log(-1 + s[i] - sum(h[j] * A[i, j] for j in range(n)) - c) for i in range(n_a))
+    v += n_a
+    F = F - sum(log(sum(h[j] * B[i, j] for j in range(n)) + c - 1 + t[i]) for i in range(n_b))
+    v += n_b
+    F = F - log(p - Objective(lambd, n, n_a, n_b))
+    v += 1
+    return F, v
 
 def Objective(lambd,n,n_a,n_b):
     '''Defines the objective function of ex A3 as a sympy function'''
 
     # Define Symbols
-    h, c, p, s, t = Define_symbols(n,n_a,n_b)
+    h, c, p, s, t = Define_symbols(n, n_a, n_b)
 
-    G = lambd*sum((h[i]**2) for i in range(n))
-    G = G + sum(s[i] for i in range(len(s)))/len(s)
-    G = G + sum(t[i] for i in range(len(t)))/len(t)
+    O = lambd*sum((h[i]**2) for i in range(n))
+    O = O + sum(s[i] for i in range(len(s)))/len(s)
+    O = O + sum(t[i] for i in range(len(t)))/len(t)
     return G
 
 def initialization_sspf(F, gradF, HessF, n, n_a, n_b):
@@ -126,7 +132,7 @@ def initialization_sspf(F, gradF, HessF, n, n_a, n_b):
 
     return x_0, mu_0
 
-    n = len(A[0,:])
+    n = len(A[0, :])
 
     # Number of points in A
     n_a = len(A)
@@ -138,7 +144,7 @@ def initialization_sspf(F, gradF, HessF, n, n_a, n_b):
 #start_time = time.time()
 
     # Number of features
-n = len(A[0,:])
+n = len(A[0, :])
 
     # Number of points in A
 n_a = len(A)
@@ -148,10 +154,10 @@ n_b = len(B)
 
 # Define the variables of the problem
 mu = symbols("mu")
-h, c, p, s, t = Define_symbols(n,n_a,n_b)
+h, c, p, s, t = Define_symbols(n, n_a, n_b)
 
 # Define the function to minimize at each step
-F = p/mu + Barrier(lambd,n,n_a,n_b)
+F = p/mu + Barrier(lambd, n, n_a, n_b)[0]
 
 # Define it numerically
 num_F = lambdify((mu, h, c, p, s, t), F, 'numpy')
@@ -217,7 +223,7 @@ def damped_N(grad, Hess, x0, n, n_a, n_b, mu=1):
     # Evaluate delta
     #    print(G)
     #    print(np.dot(G, -n))
-    delta = np.sqrt(np.dot(G,-n))
+    delta = np.sqrt(np.dot(G, -n))
 
     # Break if delta is less then 1
     if delta < 1:
@@ -232,7 +238,7 @@ def damped_N(grad, Hess, x0, n, n_a, n_b, mu=1):
 
 
 # Define gradient of F
-gradF = Differenciate(F,n,n_a,n_b)
+gradF = Differenciate(F, n, n_a, n_b)
 '''for i in range(len(gradF)):
     print(gradF[i])'''
 # Make the gradient a callable function
@@ -245,8 +251,8 @@ num_gradF = lambdify((mu, h, c, p, s, t), gradF, 'numpy')
 # Define the Hessian of F
 HessF = []
 for i in range(len(gradF)):
-    new_row = Differenciate(gradF[i],n,n_a,n_b)
-    HessF +=  [new_row]
+    new_row = Differenciate(gradF[i], n, n_a, n_b)
+    HessF += [new_row]
 '''for i in range(len(HessF)):
     for j in range(len(HessF)):
         print(HessF[i,j])'''
@@ -283,7 +289,7 @@ mu = 3
 print(f'F = {num_F(mu, h, c, p, s, t)}')
 delta = 1
 while delta >= 1:
-    x0, delta = damped_N(gradF, HessF, x0, n, n_a, n_b,mu)
+    x0, delta = damped_N(gradF, HessF, x0, n, n_a, n_b, mu)
     # Extract variables
     h = x0[:n]
     c = x0[n]
