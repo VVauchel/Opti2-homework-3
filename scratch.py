@@ -4,7 +4,7 @@ import prova as pr
 from sympy import symbols, lambdify, log, diff
 import SPFM as SPFM
 
-A,B = pr.Read_Data(3,2,2)
+A,B = pr.Read_Data(6,15,15)
 
 lambd=5
 
@@ -48,29 +48,26 @@ p = x0[n + 1]
 s = x0[n + 2:n + 2 + n_a]
 t = x0[n + 2 + n_a:]
 
-
+'''
 #print(num_HessF(1,h,c,p,s,t))
 #print(np.array(num_HessF(1,h,c,p,s,t)))
 H = np.array(num_HessF(1,h,c,p,s,t))
 print(type(H))
 print(np.array_equal(H, H.T))
 print(np.linalg.eigvals(H))
+'''
 
 # Initial mu
 mu = 1
 #print(f'F = {num_F(mu, h, c, p, s, t)}')
 
+#This while is the implementation of the initialization described in Lec10
 delta = 1
 while delta >= 1:
     #x0, delta = pr.damped_N(gradF, HessF, x0, n, n_a, n_b, mu)
     x0, delta = SPFM.damped_N(x0,A,B,lambd,mu=1)
     # Extract variables
-    h = x0[:n]
-    c = x0[n]
-    p = x0[n + 1]
-    s = x0[n + 2:n + 2 + n_a]
-    t = x0[n + 2 + n_a:]
 
-    print(f'F = {num_F(mu, h, c, p, s, t)}')
+    print(f'F = {fun.New_Obj(x0,1,5,A,B)}')
     print(f'delta = {delta}')
-
+# We should get delta decreasing, but it's only correct for small number of features and points

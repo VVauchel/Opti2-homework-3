@@ -133,7 +133,7 @@ def damped_N(x0,A,B,lambd,mu=1):
     # Attentiom: returned delta is the one associated to x0, not to x
     return x, delta
 
-A,B = Read_Data(10,5,5)
-x_0,mu_0 = initialization(A,B,lambd=5)
-
+A,B = Read_Data(5,5,5)
+x0,mu_0 = initialization(A,B,lambd=5)
+print(f'x0 = {x0}')
 
