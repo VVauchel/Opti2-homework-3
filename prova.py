@@ -4,33 +4,36 @@ import matplotlib.pyplot as plt
 import time
 from sympy import symbols, lambdify, log, diff
 
-image_size = 28  # width and length
-no_of_different_labels = 10  #  i.e. 0, 1, 2, 3, ..., 9
-image_pixels = image_size * image_size
-data_path = "data/mnist/"
-train_data = np.loadtxt(data_path + "mnist_train.csv",
-                        delimiter=",")
-test_data = np.loadtxt(data_path + "mnist_test.csv",
-                       delimiter=",")
 
-# Extract 0s from the training set
-A = train_data[train_data[:, 0] == 0.]
+def Read_Data(n,n_a,n_b):
+    image_size = 28  # width and length
+    no_of_different_labels = 10  # i.e. 0, 1, 2, 3, ..., 9
+    image_pixels = image_size * image_size
+    data_path = "data/mnist/"
+    train_data = np.loadtxt(data_path + "mnist_train.csv",
+                            delimiter=",")
+    test_data = np.loadtxt(data_path + "mnist_test.csv",
+                           delimiter=",")
 
-# Delete the first column
-A = A[0:5, 1:]
+    # Extract 0s from the training set
+    A = train_data[train_data[:, 0] == 0.]
 
-# Only keep some columns such that first element is non zero (for start 10 of them)
-non_zero_ind = np.nonzero(A[0, :])[0]
-indices = np.random.choice(non_zero_ind, size=10, replace=False)
-A = A[:, indices]
+    # Delete the first column
+    A = A[0:n_a, 1:]
 
-# Extract non-0s
-B = train_data[train_data[:, 0] != 0.]
-# Delete first column
-B = B[0:5, 1:]
-# Keep the same columns you kept in A
-B = B[:, indices]
+    # Only keep some columns such that first element is non zero (for start 10 of them)
+    non_zero_ind = np.nonzero(A[0, :])[0]
+    indices = np.random.choice(non_zero_ind, size=n, replace=False)
+    A = A[:, indices]
 
+    # Extract non-0s
+    B = train_data[train_data[:, 0] != 0.]
+    # Delete first column
+    B = B[0:n_b, 1:]
+    # Keep the same columns you kept in A
+    B = B[:, indices]
+
+    return A,B
 
 '''# Assuming you have loaded the MNIST data into A and B
 # A contains zero digits, and B contains the other digits'''
@@ -110,12 +113,18 @@ def Define_symbols(n, n_a, n_b):
 
     return h, c, p, s, t
 
-def Barrier(lambd,n,n_a,n_b):
+def Barrier(lambd,A,B):
     '''Self concordant barrier'''
+
+    # Number of features
+    n = len(A[0, :])
+    # Number of points in A
+    n_a = len(A)
+    # Number of points in B
+    n_b = len(B)
 
     # Define Symbols
     h, c, p, s, t = Define_symbols(n, n_a, n_b)
-
 
     # Define the self concordant barrier
     F = 0
@@ -140,10 +149,10 @@ def Objective(lambd,n,n_a,n_b):
     # Define Symbols
     h, c, p, s, t = Define_symbols(n, n_a, n_b)
 
-    O = lambd*sum((h[i]**2) for i in range(n))
-    O = O + sum(s[i] for i in range(len(s)))/len(s)
-    O = O + sum(t[i] for i in range(len(t)))/len(t)
-    return O
+    Obj = lambd*sum((h[i]**2) for i in range(n))
+    Obj = Obj + sum(s[i] for i in range(len(s)))/len(s)
+    Obj = Obj + sum(t[i] for i in range(len(t)))/len(t)
+    return Obj
 
 def initialization_sspf(gradF, HessF, n, n_a, n_b):
     '''First draft: chose an interior point x_0 and find a mu_0 such that 
@@ -160,29 +169,7 @@ def initialization_sspf(gradF, HessF, n, n_a, n_b):
         x0, delta = damped_N(gradF, HessF, x0, n, n_a, n_b, mu)
 
     return x_0, mu_0
-
-
-#start_time = time.time()
-
-    # Number of features
-n = len(A[0, :])
-
-    # Number of points in A
-n_a = len(A)
-
-    # Number of points in B
-n_b = len(B)
-
-# Define the variables of the problem
-mu = symbols("mu")
-h, c, p, s, t = Define_symbols(n, n_a, n_b)
-
-# Define the function to minimize at each step
-F = p/mu + Barrier(lambd, n, n_a, n_b)[0]
-
-# Define it numerically
-num_F = lambdify((mu, h, c, p, s, t), F, 'numpy')
-
+'''
 # Save the function to a file
 with open('my_function.pkl', 'wb') as file:
     dill.dump(num_F, file)
@@ -193,7 +180,7 @@ with open('my_function.pkl', 'rb') as file:
 
 # Use the loaded function
 print("Result using the loaded function:", loaded_function)
-
+'''
 def Differenciate(func,n,n_a,n_b):
     '''Differenciate wrt (p, h, c, s, t)'''
 
@@ -201,9 +188,9 @@ def Differenciate(func,n,n_a,n_b):
     h, c, p, s, t = Define_symbols(n, n_a, n_b)
 
     # Define the gradient of func
-    grad = [diff(func, p)]
-    grad += [diff(func, h[i]) for i in range(n)]
+    grad = [diff(func, h[i]) for i in range(n)]
     grad += [diff(func, c)]
+    grad += [diff(func, p)]
     grad += [diff(func, s[i]) for i in range(n_a)]
     grad += [diff(func, t[i]) for i in range(n_b)]
 
@@ -255,71 +242,6 @@ def damped_N(grad, Hess, x0, n, n_a, n_b, mu=1):
 
     # Attentiom: returned delta is the one associated to x0, not to x
     return x, delta
-
-
-
-# Define gradient of F
-gradF = Differenciate(F, n, n_a, n_b)
-'''for i in range(len(gradF)):
-    print(gradF[i])'''
-# Make the gradient a callable function
-num_gradF = lambdify((mu, h, c, p, s, t), gradF, 'numpy')
-
-#print(len(num_gradF(1, [0 for i in range(n)], 0, 5, [2 for i in range(n_a)], [2 for i in range(n_b)])))
-
-
-
-# Define the Hessian of F
-HessF = []
-for i in range(len(gradF)):
-    new_row = Differenciate(gradF[i], n, n_a, n_b)
-    HessF += [new_row]
-'''for i in range(len(HessF)):
-    for j in range(len(HessF)):
-        print(HessF[i,j])'''
-
-# Make Hessian a callable function
-num_HessF = lambdify((mu, h, c, p, s, t), HessF, 'numpy')
-
-# Define feasible x0 and try to compute a damped newton step
-x0 = [0 for i in range(n)] + [0] + [5] + [2 for i in range(n_a)] + [2 for i in range(n_b)]
-
-'''
-# Extract variables
-h = x0[:n]
-c = x0[n]
-p = x0[n + 1]
-s = x0[n + 2:n + 2 + n_a]
-t = x0[n + 2 + n_a:]
-
-#print(num_HessF(1,h,c,p,s,t))
-#print(np.array(num_HessF(1,h,c,p,s,t)))
-H = np.array(num_HessF(1,h,c,p,s,t))
-print(type(H))
-print(np.array_equal(H, H.T))
-print(np.linalg.eigvals(H))
-'''
-# Extract variables
-h = x0[:n]
-c = x0[n]
-p = x0[n + 1]
-s = x0[n + 2:n + 2 + n_a]
-t = x0[n + 2 + n_a:]
-# Initial mu
-mu = 3
-print(f'F = {num_F(mu, h, c, p, s, t)}')
-delta = 1
-while delta >= 1:
-    x0, delta = damped_N(gradF, HessF, x0, n, n_a, n_b, mu)
-    # Extract variables
-    h = x0[:n]
-    c = x0[n]
-    p = x0[n + 1]
-    s = x0[n + 2:n + 2 + n_a]
-    t = x0[n + 2 + n_a:]
-
-    print(f'F = {num_F(mu, h, c, p, s, t)}')
-    print(f'delta = {delta}')
 
 ''' Testing...
 H = num_HessF(1, [0 for i in range(n)], 0, 5, [2 for i in range(n_a)], [2 for i in range(n_b)])

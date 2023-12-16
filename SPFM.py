@@ -114,7 +114,6 @@ def damped_N(x0,A,B,lambd,mu=1):
 
     # Evaluate Hessian at x0
     H = fun.Hessian(x0,lambd,A,B)
-    print(np.linalg.eigvals(H))
 
     # Evaluate newton step
     newton= np.linalg.solve(H, J)
@@ -123,7 +122,6 @@ def damped_N(x0,A,B,lambd,mu=1):
     #    print(G)
     #    print(np.dot(G, n))
     delta = np.sqrt(np.dot(J, newton))
-    print(delta)
 
     # Break if delta is less then 1
     if delta < 1:
@@ -137,3 +135,5 @@ def damped_N(x0,A,B,lambd,mu=1):
 
 A,B = Read_Data(10,5,5)
 x_0,mu_0 = initialization(A,B,lambd=5)
+
+
