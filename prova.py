@@ -39,7 +39,7 @@ B = B[:, indices]
 # Set the regularization parameter lambda
 lambd = float(5)
 
-def short_path_method(A,B,lambd):
+def short_path_method(A,B,lambd, eps = 1e-3):
     '''This function implements the short path following method to optimize 
     the problem in Homework 3 of the course Optimization Models and methods II
     2023/2024
@@ -57,21 +57,46 @@ def short_path_method(A,B,lambd):
     # Number of points in B
     n_b = len(B)
 
-    # Define the simbols:
-    h = symbols('h1:%d' % (n + 1))  # h as an n-dimensional vector
-    c, p = symbols('c p')  # c and p as scalars
-    s = symbols('s1:%d' % (n_a + 1))  # s as an n_a-dimensional vector
-    t = symbols('t1:%d' % (n_b + 1))  # t as an n_b-dimensional vector
-
+    # Define the variables of the problem
+    h, c, p, s, t = Define_symbols(n, n_a, n_b)
 
     # Define the self concordant barrier with sympy
-    F,v = Barrier(h, c, s, t, p)
+    G,v = Barrier(h, c, s, t, p)
 
     # Initialize with x_0 and mu_0
     x_0, mu_0 = initialization_sspf(F, n, n_a, n_b)
 
-    # While cycle
+    # Choose tau
+    tau = .25
 
+    #Choose theta
+    theta = (16*np.sqrt(v))**(-1)
+
+    # Compute mu_final
+    mu_f = eps*(1-tau)/v
+
+    mu_ = mu_0
+    x = x_0
+    # While cycle
+    while mu_ > mu_f:
+
+        # Update mu
+        mu_ = (1-theta)*mu_
+
+        # Update Function to minimize
+        F = p/mu_ + G
+
+        # Evaluate Gradient
+        gradF = Differenciate(F, n, n_a, n_b)
+
+        # Evalutate Hessian
+        HessF = []
+        for i in range(len(gradF)):
+            new_row = Differenciate(gradF[i], n, n_a, n_b)
+            HessF += [new_row]
+
+        # Newton step
+        #x = need to define newton step
 
     return 1
 
@@ -120,26 +145,21 @@ def Objective(lambd,n,n_a,n_b):
     O = O + sum(t[i] for i in range(len(t)))/len(t)
     return O
 
-def initialization_sspf(F, gradF, HessF, n, n_a, n_b):
+def initialization_sspf(gradF, HessF, n, n_a, n_b):
     '''First draft: chose an interior point x_0 and find a mu_0 such that 
     delta_mu_0 < 1'''
 
-
-
-
+    # Choose mu_0
     mu_0 = 1
-    x_0 = 1
 
+    # Initialize delta
+    delta = 1
+    # Get closer to path until delta < 1
+    while delta >= 1:
+        # Do a Damped Newton step to decrease delta
+        x0, delta = damped_N(gradF, HessF, x0, n, n_a, n_b, mu)
 
     return x_0, mu_0
-
-    n = len(A[0, :])
-
-    # Number of points in A
-    n_a = len(A)
-
-    # Number of points in B
-    n_b = len(B)
 
 
 #start_time = time.time()
