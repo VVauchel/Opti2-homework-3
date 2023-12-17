@@ -112,6 +112,50 @@ def short_path_method(A, B, lambd=5, eps=1e-3):
 
     return x
 
+def long_path_method(A, B, lambd=5, eps=1e-3):
+    '''This function implements the short path following method to optimize
+    the problem in Homework 3 of the course Optimization Models and methods II
+    2023/2024
+    Input:  lambd: regularization coefficient
+            A: set 1, matrix with coordinates of points as rows
+            B: set 2, same as A
+    '''
+
+    # Number of features
+    n = len(A[0, :])
+    # Number of points in A
+    n_a = len(A)
+    # Number of points in B
+    n_b = len(B)
+
+    #x0 = np.array([0 for i in range(n)] + [0] + [5] + [2 for i in range(n_a)] + [2 for i in range(n_b)])
+    x0, mu_0, _ = load_x0()
+
+    # Choose tau
+    tau = .25
+
+    # Choose theta v
+    v = 2 * n_a + 2 * n_b + 1
+    theta = (np.sqrt(v)) ** (-1)
+
+    # Compute mu_final
+    mu_f = eps * (1 - tau) / v
+
+    mu = mu_0
+    x = x0
+    # While cycle
+    while mu > mu_f:
+        # Update mu
+        mu = (1 - theta) * mu
+
+        delta = 1
+        print(f'mu = {mu}')
+        while delta >= .25:
+            # Do a Damped Newton step to decrease delta
+            x, delta = damped_N(x, A, B, lambd, mu)
+            print(f'delta = {delta}')
+
+    return x
 
 def initialization(A, B, lambd):
     '''First draft: chose an interior point x_0 and find a mu_0 such that
@@ -168,6 +212,7 @@ def damped_N(x0, A, B, lambd, mu=1):
 
     # Attentiom: returned delta is the one associated to x0, not to x
     return x, delta
+
 def update_x0(A,B,lambd=5):
     with open('x0.txt', 'wb') as fileX0:
         with open('mu0.txt', 'wb') as fileMu:
