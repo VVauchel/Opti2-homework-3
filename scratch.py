@@ -4,17 +4,8 @@ import prova as pr
 from sympy import symbols, lambdify, log, diff
 import SPFM as SPFM
 
-A,B = pr.Read_Data(6,15,15)
-
-lambd=5
-
-# Number of features
-n = len(A[0, :])
-# Number of points in A
-n_a = len(A)
-# Number of points in B
-n_b = len(B)
-
+'''
+# Testing if Callables are correct...
 # Define the variables of the problem
 mu = symbols("mu")
 h, c, p, s, t = pr.Define_symbols(n, n_a, n_b)
@@ -47,7 +38,7 @@ c = x0[n]
 p = x0[n + 1]
 s = x0[n + 2:n + 2 + n_a]
 t = x0[n + 2 + n_a:]
-
+'''
 '''
 #print(num_HessF(1,h,c,p,s,t))
 #print(np.array(num_HessF(1,h,c,p,s,t)))
@@ -61,13 +52,12 @@ print(np.linalg.eigvals(H))
 mu = 1
 #print(f'F = {num_F(mu, h, c, p, s, t)}')
 
-#This while is the implementation of the initialization described in Lec10
-delta = 1
-while delta >= 1:
-    #x0, delta = pr.damped_N(gradF, HessF, x0, n, n_a, n_b, mu)
-    x0, delta = SPFM.damped_N(x0, A, B, lambd, mu=1)
-    # Extract variables
+# Initialize algorithm
+nine = 9
+A, B = SPFM.Read_Data(1*nine, 1*nine, 1*nine)
+#x0, mu_0, delta = SPFM.initialization(A, B, lambd=5)
+#print(f'x0 = {x0[:10]}, delta = {delta}')
 
-    print(f'F = {fun.New_Obj(x0,1,5,A,B)}')
-    print(f'delta = {delta}')
-# We should get delta decreasing, but it's only correct for small number of features and points
+x = SPFM.short_path_method(A, B, lambd = 5, eps = 1e-3)
+
+
