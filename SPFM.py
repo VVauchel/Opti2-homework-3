@@ -1,6 +1,6 @@
 import numpy as np
 import Fun_Jac_Hess as fun
-
+import math
 
 def Read_Data(n, n_a, n_b):
     image_size = 28  # width and length
@@ -67,8 +67,8 @@ def short_path_method(A, B, lambd=5, eps=1e-3):
     # Number of points in B
     n_b = len(B)
 
-    # Initialize with x_0 and mu_0
-    x_0, mu_0, _ = initialization(A, B, lambd)
+    #x0 = np.array([0 for i in range(n)] + [0] + [5] + [2 for i in range(n_a)] + [2 for i in range(n_b)])
+    x0, mu_0, _ = load_x0()
 
     # Choose tau
     tau = .25
@@ -81,7 +81,7 @@ def short_path_method(A, B, lambd=5, eps=1e-3):
     mu_f = eps * (1 - tau) / v
 
     mu = mu_0
-    x = x_0
+    x = x0
     # While cycle
     while mu > mu_f:
         # Update mu
@@ -96,6 +96,16 @@ def short_path_method(A, B, lambd=5, eps=1e-3):
         # Evaluate newton step
         newton = np.linalg.solve(H, J)
         print(f'Norma n_mu = {np.linalg.norm(newton)}')
+
+        delta = np.sqrt(np.dot(J, newton))
+        print(f'delta = {delta}')
+        if math.isnan(delta):
+            print(f'F = {fun.New_Obj(x,mu,lambd,A,B)}')
+            print(f'eig(H) = {np.linalg.eigvals(H)}')
+            #print(f'J = {J}')
+            #print(f'Newton = {newton}')
+            print(f'scalar prod = {np.dot(J, newton)}')
+            break
 
         # Evaluate new x
         x = x - newton
@@ -117,12 +127,13 @@ def initialization(A, B, lambd):
     # Choose mu_0
     mu_0 = 1
 
+    # Initialize x0
     x0 = np.array([0 for i in range(n)] + [0] + [5] + [2 for i in range(n_a)] + [2 for i in range(n_b)])
 
     # Initialize delta
     delta = 1
     # Get closer to path until delta < 1
-    while delta >= 1:
+    while delta >= .25:
         # Do a Damped Newton step to decrease delta
         x0, delta = damped_N(x0, A, B, lambd, mu_0)
         print(f'delta = {delta}')
@@ -149,7 +160,7 @@ def damped_N(x0, A, B, lambd, mu=1):
     delta = np.sqrt(np.dot(J, newton))
 
     # Break if delta is less then 1
-    if delta < 1:
+    if delta < .25:
         return x0, delta
 
     # Evaluate new x
@@ -157,11 +168,11 @@ def damped_N(x0, A, B, lambd, mu=1):
 
     # Attentiom: returned delta is the one associated to x0, not to x
     return x, delta
-def update_x0(A,B,lambd):
+def update_x0(A,B,lambd=5):
     with open('x0.txt', 'wb') as fileX0:
         with open('mu0.txt', 'wb') as fileMu:
             with open('delta.txt', 'wb') as fileDelta:
-                x0, mu_0, delta  = initialization(A, B, lambd=5)
+                x0, mu_0, delta  = initialization(A, B, lambd)
                 np.save(fileX0, x0)
                 np.save(fileMu, mu_0)
                 np.save(fileDelta,delta)
@@ -174,10 +185,10 @@ def load_x0():
                 mu_0 = np.load(fileMu)
                 delta = np.load(fileDelta)
     return x0, mu_0, delta
-
+'''
 nine = 9
 A, B = Read_Data(1*nine, 1*nine, 1*nine)
 update_x0(A, B, lambd=5)
-x0, mu_0, delta = load_x0()
+x0, mu_0, delta = load_x0() '''
 #print(f'delta = {delta}')
 

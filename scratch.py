@@ -58,6 +58,7 @@ A, B = SPFM.Read_Data(1*nine, 1*nine, 1*nine)
 #x0, mu_0, delta = SPFM.initialization(A, B, lambd=5)
 #print(f'x0 = {x0[:10]}, delta = {delta}')
 
+#SPFM.update_x0(A,B)
 x = SPFM.short_path_method(A, B, lambd = 5, eps = 1e-3)
 
 
