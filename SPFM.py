@@ -164,12 +164,12 @@ def update_x0(A,B,lambd):
                 x0, mu_0, delta  = initialization(A, B, lambd=5)
                 np.save(fileX0, x0)
                 np.save(fileMu, mu_0)
-                np.save(fileDeltadelta)
+                np.save(fileDelta)
 
 def load_x0():
     with open('x0.txt', 'rb') as fileX0:
         with open('mu0.txt', 'rb') as fileMu:
-            with open('delta.txt', 'rb') as fileMu:
+            with open('delta.txt', 'rb') as fileDelta:
                 x0 = np.load(fileX0)
                 mu_0 = np.load(fileMu)
                 delta = np.load(fileDelta)
