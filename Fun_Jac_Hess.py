@@ -1,5 +1,5 @@
 import numpy as np
-def Barrier(x,lambd,A,B):
+def Barrier(x, lambd, A, B):
     '''A,B are the matrices defining parameters of G
     x is an 1D-array of lenght n+n_a+n_b+2, x = [h,c,p,s,t]'''
 
@@ -23,26 +23,26 @@ def Barrier(x,lambd,A,B):
 
     for i in range(n_a):
         G -= np.log(s[i])
-        G -= np.log(-1+s[i]-np.dot(h,A[i,:])-c)
+        G -= np.log(-1+s[i]-np.dot(h, A[i, :])-c)
 
     for i in range(n_b):
         G -= np.log(t[i])
-        G -= np.log(np.dot(h,B[i,:]) + c -1 + t[i])
+        G -= np.log(np.dot(h, B[i, :]) + c -1 + t[i])
 
-    obj = Old_Objective(lambd,h,s,t)
+    obj = Old_Objective(lambd, h, s, t)
 
     G -= np.log(p - obj)
 
     return G
 
-def Old_Objective(lambd,h,s,t):
+def Old_Objective(lambd, h, s, t):
     '''Evaluates the objective of the SVM problem in the classical formulation'''
 
-    obj = lambd * np.dot(h,h) + np.mean(s) + np.mean(t)
+    obj = lambd * np.dot(h, h) + np.mean(s) + np.mean(t)
 
     return obj
 
-def New_Obj(x,mu,lambd,A,B):
+def New_Obj(x, mu, lambd, A, B):
     '''Evaluates the objective of the SVM problem in the formulation
     linear + barrier'''
 
@@ -57,14 +57,14 @@ def New_Obj(x,mu,lambd,A,B):
     p = x[n + 1]
 
     # Evaluate Barrier
-    Bar = Barrier(x,lambd,A,B)
+    Bar = Barrier(x, lambd, A, B)
 
     # Evaluate Objective
     val = p/mu + Bar
 
     return val
 
-def Jacobian(x,mu,lambd,A,B):
+def Jacobian(x, mu, lambd, A, B):
     '''Evaluates the jacobian of the new objective in x'''
 
     # Number of features
@@ -83,13 +83,13 @@ def Jacobian(x,mu,lambd,A,B):
 
 
     # Three recurrent quantities in the expressions of derivatives...
-    Q1 = [-1 + s[i] - np.dot(h,A[i,:]) - c for i in range(n_a)]
-    Q2 = [np.dot(h,B[i,:]) + c - 1 + t[i] for i in range(n_b)]
-    Q3 = p - Old_Objective(lambd,h,s,t)
+    Q1 = [-1 + s[i] - np.dot(h, A[i, :]) - c for i in range(n_a)]
+    Q2 = [np.dot(h, B[i, :]) + c - 1 + t[i] for i in range(n_b)]
+    Q3 = p - Old_Objective(lambd, h, s, t)
 
     #dF/dh_j
-    Jh = [sum(A[i,j]/Q1[i] for i in range(n_a))
-         - sum(B[i,j]/Q2[i] for i in range(n_b))
+    Jh = [sum(A[i, j]/Q1[i] for i in range(n_a))
+         - sum(B[i, j]/Q2[i] for i in range(n_b))
          + 2*lambd*h[j]/Q3 for j in range(n)]
 
     #dF/dc
@@ -115,7 +115,7 @@ def Jacobian(x,mu,lambd,A,B):
     J = np.array(J)
     return J
 
-def Hessian(x,lambd,A,B):
+def Hessian(x, lambd, A, B):
     '''Evaluates the Hessian of the new_objective'''
 
     # Number of features
@@ -148,31 +148,31 @@ def Hessian(x,lambd,A,B):
     # Derive dF/dh_j for each j
     for j in range(n):
         # dF/dh_j dh_k
-        Hhh = [sum(A[i,j]*A[i,k]/Q1[i] for i in range(n_a))
-        + sum(B[i,j]*B[i,k]/Q2[i] for i in range(n_b))
+        Hhh = [sum(A[i, j]*A[i, k]/Q1[i] for i in range(n_a))
+        + sum(B[i, j]*B[i, k]/Q2[i] for i in range(n_b))
         + (j == k)*2*lambd/Q3 + 4*lambd*h[j]*h[k]/(Q3**2)
         for k in range(n)]
 
         # dF/dh_j dc
-        Hhc = [sum(A[i,j]/Q1[i] for i in range(n_a))
-               + sum(B[i,j]/Q2[i] for i in range(n_b))]
+        Hhc = [sum(A[i, j]/Q1[i] for i in range(n_a))
+               + sum(B[i, j]/Q2[i] for i in range(n_b))]
 
         # dF/dh_j dp
         Hhp = [- 2*lambd*h[j]/(Q3**2)]
 
         # dF/dh_j ds_k
-        Hhs = [- A[k,j]/Q1[k] + 2*lambd*h[j]/(n_a*(Q3**2)) for k in range(n_a)]
+        Hhs = [- A[k, j]/Q1[k] + 2*lambd*h[j]/(n_a*(Q3**2)) for k in range(n_a)]
 
         # dF/dh_j dt_k
-        Hht = [B[k,j]/Q2[k] + 2*lambd*h[j]/(n_b*(Q3**2)) for k in range(n_b)]
+        Hht = [B[k, j]/Q2[k] + 2*lambd*h[j]/(n_b*(Q3**2)) for k in range(n_b)]
 
         # Define the j-th row of hessian
         H[j] = Hhh + Hhc + Hhp + Hhs + Hht
 
     # H2
     # dF/dc dh_k
-    Hch = [sum(A[i,k]/Q1[i] for i in range(n_a))
-           + sum(B[i,k]/Q2[i] for i in range(n_b))
+    Hch = [sum(A[i, k]/Q1[i] for i in range(n_a))
+           + sum(B[i, k]/Q2[i] for i in range(n_b))
            for k in range(n)] #This was already evaluated and could be changed
 
     # dF/dc dc
@@ -223,7 +223,7 @@ def Hessian(x,lambd,A,B):
         Hsp = [H[n+1][n+2+j]]
 
         # dF/ds_j ds_k
-        Hss = [(j==k)*(1/s[j]**2 + 1/Q1[j])
+        Hss = [(j == k)*(1/s[j]**2 + 1/Q1[j])
               + 1/(Q3*n_a)**2
                for k in range(n_a)]
 
@@ -247,7 +247,7 @@ def Hessian(x,lambd,A,B):
         Hts = [H[n+2+k][n+2+n_a+j] for k in range(n_a)]
 
         # dF/dt_j dt_k
-        Htt = [(j==k)*(1/t[j]**2 + 1/Q2[j])
+        Htt = [(j == k)*(1/t[j]**2 + 1/Q2[j])
               + 1/(Q3*n_b)**2
                for k in range(n_b)]
 

@@ -5,7 +5,7 @@ import time
 from sympy import symbols, lambdify, log, diff
 
 
-def Read_Data(n,n_a,n_b):
+def Read_Data(n, n_a, n_b):
     image_size = 28  # width and length
     no_of_different_labels = 10  # i.e. 0, 1, 2, 3, ..., 9
     image_pixels = image_size * image_size
@@ -16,6 +16,7 @@ def Read_Data(n,n_a,n_b):
                            delimiter=",")
 
     # Extract 0s from the training set
+    print(train_data[0])
     A = train_data[train_data[:, 0] == 0.]
 
     # Delete the first column
@@ -33,7 +34,7 @@ def Read_Data(n,n_a,n_b):
     # Keep the same columns you kept in A
     B = B[:, indices]
 
-    return A,B
+    return A, B
 
 '''# Assuming you have loaded the MNIST data into A and B
 # A contains zero digits, and B contains the other digits'''
@@ -42,7 +43,7 @@ def Read_Data(n,n_a,n_b):
 # Set the regularization parameter lambda
 lambd = float(5)
 
-def short_path_method(A,B,lambd, eps = 1e-3):
+def short_path_method(A, B, lambd, eps = 1e-3):
     '''This function implements the short path following method to optimize 
     the problem in Homework 3 of the course Optimization Models and methods II
     2023/2024
@@ -64,10 +65,10 @@ def short_path_method(A,B,lambd, eps = 1e-3):
     h, c, p, s, t = Define_symbols(n, n_a, n_b)
 
     # Define the self concordant barrier with sympy
-    G,v = Barrier(h, c, s, t, p)
+    G, v = Barrier(h, c, s, t, p)
 
     # Initialize with x_0 and mu_0
-    x_0, mu_0 = initialization_sspf(F, n, n_a, n_b)
+    x_0, mu_0 = initialization_sspf(G, n, n_a, n_b)
 
     # Choose tau
     tau = .25
@@ -113,7 +114,7 @@ def Define_symbols(n, n_a, n_b):
 
     return h, c, p, s, t
 
-def Barrier(lambd,A,B):
+def Barrier(lambd, A, B):
     '''Self concordant barrier'''
 
     # Number of features
@@ -143,7 +144,7 @@ def Barrier(lambd,A,B):
     print(f'v : {v}')
     return F, v
 
-def Objective(lambd,n,n_a,n_b):
+def Objective(lambd, n, n_a, n_b):
     '''Defines the objective function of ex A3 as a sympy function'''
 
     # Define Symbols
@@ -153,6 +154,7 @@ def Objective(lambd,n,n_a,n_b):
     Obj = Obj + sum(s[i] for i in range(len(s)))/len(s)
     Obj = Obj + sum(t[i] for i in range(len(t)))/len(t)
     return Obj
+
 
 def initialization_sspf(gradF, HessF, n, n_a, n_b):
     '''First draft: chose an interior point x_0 and find a mu_0 such that 
@@ -164,11 +166,13 @@ def initialization_sspf(gradF, HessF, n, n_a, n_b):
     # Initialize delta
     delta = 1
     # Get closer to path until delta < 1
+    mu = mu_0
+    x0 = 1
     while delta >= 1:
         # Do a Damped Newton step to decrease delta
         x0, delta = damped_N(gradF, HessF, x0, n, n_a, n_b, mu)
 
-    return x_0, mu_0
+    return x0, mu_0
 '''
 # Save the function to a file
 with open('my_function.pkl', 'wb') as file:
@@ -181,7 +185,7 @@ with open('my_function.pkl', 'rb') as file:
 # Use the loaded function
 print("Result using the loaded function:", loaded_function)
 '''
-def Differenciate(func,n,n_a,n_b):
+def Differenciate(func, n, n_a, n_b):
     '''Differenciate wrt (p, h, c, s, t)'''
 
     # Define symbols

@@ -17,10 +17,10 @@ n_b = len(B)
 
 # Define the variables of the problem
 mu = symbols("mu")
-h, c, p, s, t = pr.Define_symbols(n,n_a,n_b)
+h, c, p, s, t = pr.Define_symbols(n, n_a, n_b)
 
 # Define the function to minimize at each step
-F = p/mu + pr.Barrier(lambd,A,B)[0]
+F = p/mu + pr.Barrier(lambd, A, B)[0]
 # Define it numerically
 num_F = lambdify((mu, h, c, p, s, t), F, 'numpy')
 
@@ -65,7 +65,7 @@ mu = 1
 delta = 1
 while delta >= 1:
     #x0, delta = pr.damped_N(gradF, HessF, x0, n, n_a, n_b, mu)
-    x0, delta = SPFM.damped_N(x0,A,B,lambd,mu=1)
+    x0, delta = SPFM.damped_N(x0, A, B, lambd, mu=1)
     # Extract variables
 
     print(f'F = {fun.New_Obj(x0,1,5,A,B)}')
