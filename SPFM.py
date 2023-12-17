@@ -1,5 +1,5 @@
 import numpy as np
-import Fun_Jac_Hess as fun
+import Fun_Jac_Hess_v2 as fun
 import math
 
 def Read_Data(n, n_a, n_b):
@@ -84,8 +84,10 @@ def short_path_method(A, B, lambd=5, eps=1e-3):
     x = x0
     # While cycle
     while mu > mu_f:
+        
         # Update mu
         mu = (1 - theta) * mu
+        print(f'mu = {mu}')
 
         # Evaluate Gradient
         J = fun.Jacobian(x, mu, lambd, A, B)
