@@ -160,20 +160,24 @@ def damped_N(x0, A, B, lambd, mu=1):
 def update_x0(A,B,lambd):
     with open('x0.txt', 'wb') as fileX0:
         with open('mu0.txt', 'wb') as fileMu:
-            x0, mu_0 = initialization(A, B, lambd=5)
-            np.save(fileX0, x0)
-            np.save(fileMu, mu_0)
+            with open('delta.txt', 'wb') as fileDelta:
+                x0, mu_0, delta  = initialization(A, B, lambd=5)
+                np.save(fileX0, x0)
+                np.save(fileMu, mu_0)
+                np.save(fileDeltadelta)
 
 def load_x0():
     with open('x0.txt', 'rb') as fileX0:
         with open('mu0.txt', 'rb') as fileMu:
-            x0 = np.load(fileX0)
-            mu_0 = np.load(fileMu)
-    return x0, mu_0
+            with open('delta.txt', 'rb') as fileMu:
+                x0 = np.load(fileX0)
+                mu_0 = np.load(fileMu)
+                delta = np.load(fileDelta)
+    return x0, mu_0, delta
 
 nine = 9
 A, B = Read_Data(1*nine, 1*nine, 1*nine)
 update_x0(A, B, lambd=5)
-x0, mu_0 = load_x0()
+x0, mu_0, delta = load_x0()
 print(f'delta = {delta}')
 
