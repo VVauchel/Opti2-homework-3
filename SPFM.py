@@ -164,7 +164,7 @@ def update_x0(A,B,lambd):
                 x0, mu_0, delta  = initialization(A, B, lambd=5)
                 np.save(fileX0, x0)
                 np.save(fileMu, mu_0)
-                np.save(fileDelta)
+                np.save(fileDelta,delta)
 
 def load_x0():
     with open('x0.txt', 'rb') as fileX0:
@@ -179,5 +179,5 @@ nine = 9
 A, B = Read_Data(1*nine, 1*nine, 1*nine)
 update_x0(A, B, lambd=5)
 x0, mu_0, delta = load_x0()
-print(f'delta = {delta}')
+#print(f'delta = {delta}')
 
