@@ -3,15 +3,13 @@ import Fun_Jac_Hess_v2 as fun
 import math
 from time import perf_counter
 
-def Read_Data(n, n_a, n_b):
+def Read_Data(n_a, n_b):
     image_size = 28  # width and length
     no_of_different_labels = 10  # i.e. 0, 1, 2, 3, ..., 9
     image_pixels = image_size * image_size
     data_path = "data/mnist/"
     train_data = np.loadtxt(data_path + "mnist_train.csv",
                             delimiter=",")
-    test_data = np.loadtxt(data_path + "mnist_test.csv",
-                           delimiter=",")
 
     # Extract 0s from the training set
     # print(train_data[0])
@@ -141,7 +139,7 @@ def short_path_method(A, B, lambd=5, eps=1e-3):
     time = perf_counter() - start
     return x, time
 
-def long_path_method(A, B, lambd=5, eps=1e-3):
+def long_path_method(A, B,theta, lambd=5, eps=1e-3,tau=.25):
     '''This function implements the short path following method to optimize
     the problem in Homework 3 of the course Optimization Models and methods II
     2023/2024
@@ -162,12 +160,8 @@ def long_path_method(A, B, lambd=5, eps=1e-3):
     #x0 = np.array([0 for i in range(n)] + [0] + [5] + [2 for i in range(n_a)] + [2 for i in range(n_b)])
     x0, mu_0, _ = load_x0()
 
-    # Choose tau
-    tau = .25
-
-    # Choose theta v
+    # Choose v
     v = 2 * n_a + 2 * n_b + 1
-    theta = (np.sqrt(v)) ** (-1)
 
     # Compute mu_final
     mu_f = eps * (1 - tau) / v
