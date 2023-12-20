@@ -80,11 +80,11 @@ def load_hctime():
                 time = np.load(fileTime)
     return h, c, time
 
-def classifier(h,c):
+def classifier(h,c,B):
     '''Let's have the classifier take in input h and c, then we can iterate outside of this function'''
 
     #cList, hList, timeList = load_hctime()
-    B = SPFM.Read_Data_Test(0)
+
 
 
     TrueCount = 0
@@ -95,22 +95,26 @@ def classifier(h,c):
         # Get the datapoint
         x = B[j][1:]
         # Classify
-        #print(np.sign(np.dot(h, x) + h))
-        if (np.sign(np.dot(h, x) + c) < 0 and B[j][0] == 0) or (
-                np.sign(np.dot(h, x) + c) > 0 and B[j][0] > 0):
+        #print(B[j][0])
+        if (np.sign(np.dot(h, x) + c) > 0 and B[j][0] == 0) or (
+                np.sign(np.dot(h, x) + c) < 0 and B[j][0] > 0):
             TrueCount += 1
         else:
+            print(np.sign(np.dot(h, x) + c), B[j][0])
             FalseCount += 1
+        #if (np.sign(np.dot(h, x) + c) < 0 and B[j][0] == 0):
+            #print("OK")
     #print(TrueCount, FalseCount)
 
     return [TrueCount, FalseCount]
 hList, cList, timeList=load_hctime()
+B = SPFM.Read_Data_Test(0)
 for i in range(len(hList)):
     #print(hList[i])
     #print(cList[i])
-    a = classifier(hList[i], cList[i])
+    a = classifier(hList[i], cList[i], B)
     print(a)
-
+print(timeList)
 # Initial mu
 mu = 1
 #print(f'F = {num_F(mu, h, c, p, s, t)}')
