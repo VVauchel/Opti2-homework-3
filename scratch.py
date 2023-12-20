@@ -4,6 +4,8 @@ import prova as pr
 from sympy import symbols, lambdify, log, diff
 import SPFM as SPFM
 from time import perf_counter
+import pandas as pd
+import ast
 
 nine = 9
 #lambd = 5
@@ -104,25 +106,22 @@ def classifier(h,c):
     #print(TrueCount, FalseCount)
 
     return [TrueCount, FalseCount]
-hList, cList, timeList=load_hctime()
-for i in range(len(hList)):
-    #print(hList[i])
-    #print(cList[i])
-    a = classifier(hList[i], cList[i])
+#hList, cList, timeList=load_hctime()
+
+# Replace 'your_saved_file.csv' with the actual filename you used
+filename = 'results_20231220192908.csv'
+
+# Read the CSV file into a DataFrame
+result_df = pd.read_csv(filename)
+
+for i in range(result_df.shape[0]):
+
+    h_string = result_df['h'][i]
+    # Convert the string to a NumPy array
+    h = np.fromstring(h_string.replace('[', '').replace(']', ''), sep=' ')
+    c = result_df['c'][i]
+    a = classifier(h,c)[0]
     print(a)
-
-# Initial mu
-mu = 1
-#print(f'F = {num_F(mu, h, c, p, s, t)}')
-
-# Initialize algorithm
-
-#x0, mu_0, delta = SPFM.initialization(A, B, lambd=5)
-#print(f'x0 = {x0[:10]}, delta = {delta}')
-#NumberDigit=1
-#A, B = SPFM.Read_Data(NumberDigit * nine, NumberDigit * nine, NumberDigit * nine)
-#x0init, mu0init, deltainit, timeInit = SPFM.update_x0(A, B, 5)
-#x = SPFM.long_path_method(A, B, lambd = 5, eps = 1e-3)
 """
 lambdaList = [1, 5, 10]
 nDigitList = [1, 2, 3]
@@ -197,6 +196,4 @@ update_hctime(hList, cList, timeList)
                 file.write(f"{epsilon};{x};{time}\n")
 """
 
-#x = SPFM.short_path_method(A, B, lambd=5, eps=1e-3)
 
-#x = SPFM.long_path_method(A, B, lambd = 5, eps = 1e-3)

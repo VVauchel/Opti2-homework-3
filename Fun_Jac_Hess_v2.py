@@ -73,7 +73,7 @@ def Jacobian(x, mu, lambd, A, B):
     h = x[:n]
     c = x[n]
     p = x[n + 1]
-    s = x[n + 2:n + 2 + n_a]
+    s = x[n+2:n+2+n_a]
     t = x[n + 2 + n_a:]
 
     # Three recurrent quantities in the expressions of derivatives...
