@@ -95,16 +95,12 @@ def classifier(h,c,B):
         # Get the datapoint
         x = B[j][1:]
         # Classify
-        #print(B[j][0])
-        if (np.sign(np.dot(h, x) + c) > 0 and B[j][0] == 0) or (
-                np.sign(np.dot(h, x) + c) < 0 and B[j][0] > 0):
+        if (np.sign(np.dot(h, x) + c) < 0 and B[j][0] == 0) or (
+                np.sign(np.dot(h, x) + c) > 0 and B[j][0] > 0):
             TrueCount += 1
         else:
-            print(np.sign(np.dot(h, x) + c), B[j][0])
             FalseCount += 1
-        #if (np.sign(np.dot(h, x) + c) < 0 and B[j][0] == 0):
-            #print("OK")
-    #print(TrueCount, FalseCount)
+
 
     return [TrueCount, FalseCount]
 hList, cList, timeList=load_hctime()
