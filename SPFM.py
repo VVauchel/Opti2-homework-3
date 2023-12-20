@@ -1,6 +1,7 @@
 import numpy as np
 import Fun_Jac_Hess_v2 as fun
 import math
+from time import perf_counter
 
 def Read_Data(n, n_a, n_b):
     image_size = 28  # width and length
@@ -50,6 +51,30 @@ def Read_Data(n, n_a, n_b):
 
     return A_fin, B_fin
 
+def Read_Data_Test(n):
+
+    # returns normalized B form [digit, x]
+    image_size = 28  # width and length
+    no_of_different_labels = 10  # i.e. 0, 1, 2, 3, ..., 9
+    image_pixels = image_size * image_size
+    data_path = "data/mnist/"
+    test_data = np.loadtxt(data_path + "mnist_test.csv",
+                           delimiter=",")
+    if n == 0:
+        n = len(test_data)
+    B_data = test_data
+    B_data = B_data[0:n, :]
+
+    fac = 0.99 / 255
+
+    print(B_data[5][0])
+    # Normalize B [0.1, 1]
+    #B_fin=np.zeros((len(B_data), len(B_data[0])))
+    B_fin[:][1:] = np.asfarray(B_data[:, :]) * fac + 0.01
+    B_fin[:][0] = B_data[:][0]
+    print(B_fin[5][0])
+    return B_fin
+
 
 def short_path_method(A, B, lambd=5, eps=1e-3):
     '''This function implements the short path following method to optimize
@@ -59,7 +84,7 @@ def short_path_method(A, B, lambd=5, eps=1e-3):
             A: set 1, matrix with coordinates of points as rows
             B: set 2, same as A
     '''
-
+    start = perf_counter()
     # Number of features
     n = len(A[0, :])
     # Number of points in A
@@ -101,6 +126,8 @@ def short_path_method(A, B, lambd=5, eps=1e-3):
 
         delta = np.sqrt(np.dot(J, newton))
         print(f'delta = {delta}')
+
+
         if math.isnan(delta):
             print(f'F = {fun.New_Obj(x,mu,lambd,A,B)}')
             print(f'eig(H) = {np.linalg.eigvals(H)}')
@@ -111,8 +138,8 @@ def short_path_method(A, B, lambd=5, eps=1e-3):
 
         # Evaluate new x
         x = x - newton
-
-    return x
+    time = perf_counter() - start
+    return x, time
 
 def long_path_method(A, B, lambd=5, eps=1e-3):
     '''This function implements the short path following method to optimize
@@ -122,6 +149,8 @@ def long_path_method(A, B, lambd=5, eps=1e-3):
             A: set 1, matrix with coordinates of points as rows
             B: set 2, same as A
     '''
+
+    start=perf_counter()
 
     # Number of features
     n = len(A[0, :])
@@ -157,7 +186,7 @@ def long_path_method(A, B, lambd=5, eps=1e-3):
             x, delta = damped_N(x, A, B, lambd, mu)
             print(f'delta = {delta}')
 
-    return x
+    return x, perf_counter()-start
 
 def initialization(A, B, lambd):
     '''First draft: chose an interior point x_0 and find a mu_0 such that
@@ -215,14 +244,16 @@ def damped_N(x0, A, B, lambd, mu=1):
     # Attentiom: returned delta is the one associated to x0, not to x
     return x, delta
 
-def update_x0(A,B,lambd=5):
+def update_x0(A, B, lambd=5):
     with open('x0.txt', 'wb') as fileX0:
         with open('mu0.txt', 'wb') as fileMu:
             with open('delta.txt', 'wb') as fileDelta:
-                x0, mu_0, delta  = initialization(A, B, lambd)
+                start = perf_counter()
+                x0, mu_0, delta = initialization(A, B, lambd)
                 np.save(fileX0, x0)
                 np.save(fileMu, mu_0)
-                np.save(fileDelta,delta)
+                np.save(fileDelta, delta)
+    return x0, mu_0, delta, perf_counter()-start
 
 def load_x0():
     with open('x0.txt', 'rb') as fileX0:
