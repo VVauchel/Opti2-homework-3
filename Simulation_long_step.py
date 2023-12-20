@@ -4,33 +4,41 @@ import Fun_Jac_Hess_v2 as fun
 import SPFM as SPFM
 from datetime import datetime
 
-Num_Dig = [1, 2, 3, 5]
-theta_factor = [16, 8, 1, 1/8, 1/16]  # theta = fac*(1/v)
-tau_range = [.1, .5, .9]
-lambd_range = [1, 5, 10]
+Num_Dig = [3, 5, 10]
+theta = [.9, .7]
+tau_range = [.25]
+lambd_range = [.1, 1, 10, 100]
+
+# Replace 'your_saved_file.csv' with the actual filename you used
+filename = 'results_20231220192908.csv'
+
+# Read the CSV file into a DataFrame
+result_df = pd.read_csv(filename)
 
 # Initialize an empty DataFrame
-result_df = pd.DataFrame(columns=['Num_Dig', 'lambda', 'tau', 'theta', 'eps', 'h', 'c', 'time'])
+#result_df = pd.DataFrame(columns=['Num_Dig', 'lambda', 'tau', 'theta', 'eps', 'h', 'c', 'time'])
 
 for i in Num_Dig:
     # Read data
     A, B = SPFM.Read_Data(i*9, i*9)
+
     for lambd in lambd_range:
+        # Update starting point
+        SPFM.update_x0(A, B, lambd)
         for tau in tau_range:
-            for t in theta_factor:
+            for t in theta:
                 # Evaluate theta from t and number of digits
                 print(f'Running Num_digit = {i},lambda = {lambd}, tau = {tau}, theta_fac = {t}')
-                theta = t*(4*i*9 + 1)**(-1)
 
                 eps = 1
-                x, time = SPFM.long_path_method(A, B, theta, lambd, eps, tau)
+                x, time = SPFM.long_path_method(A, B, t, lambd, eps, tau)
 
                 h = x[:len(A[0, :])]
                 c = x[len(A[0, :])]
 
                 # Append a new row to the DataFrame
                 result_df = result_df._append({'Num_Dig': i*9, 'lambda': lambd, 'tau': tau,
-                                              'theta': theta, 'eps': eps, 'h': h, 'c': c, 'time': time},
+                                              'theta': t, 'eps': eps, 'h': h, 'c': c, 'time': time},
                                              ignore_index=True)
 
                 # Save the DataFrame to a new CSV file with a timestamp
