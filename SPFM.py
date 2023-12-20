@@ -51,6 +51,28 @@ def Read_Data(n, n_a, n_b):
 
     return A_fin, B_fin
 
+def Read_Data_Test(n):
+
+    # returns normalized B form [digit, x]
+    image_size = 28  # width and length
+    no_of_different_labels = 10  # i.e. 0, 1, 2, 3, ..., 9
+    image_pixels = image_size * image_size
+    data_path = "data/mnist/"
+    test_data = np.loadtxt(data_path + "mnist_test.csv",
+                           delimiter=",")
+    if n == 0:
+        n = len(test_data)
+    B_data = test_data
+    B_data = B_data[0:n, :]
+
+    fac = 0.99 / 255
+
+
+    # Normalize B [0.1, 1]
+    B_fin = np.asfarray(B_data[:, :]) * fac + 0.01
+    B_fin[0]=(B_fin[0]-0.01)/fac
+    return B_fin
+
 
 def short_path_method(A, B, lambd=5, eps=1e-3):
     '''This function implements the short path following method to optimize

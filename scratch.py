@@ -10,9 +10,6 @@ nine = 9
 
 #NumberDigit = 1
 
-print(([1, 2]+[2, 3])[0])
-print(np.concatenate(([[2,4],[1, 2]], [[2, 3]])))
-#print([1,2]+[2,3])
 
 '''
 # Number of features
@@ -81,10 +78,14 @@ def load_hctime():
                 h = np.load(fileH)
                 c = np.load(fileC)
                 time = np.load(fileTime)
-    return h, c, time
+    return c, h, time
 
-def classifier(B):
-    hList, cList = load_hctime()
+def classifier():
+    hList, cList,timeList = load_hctime()
+    #print(hList[0])
+    #print(cList[0])
+    #print(timeList[0])
+    B=SPFM.Read_Data_Test(0)
     TrueCount = 0
     FalseCount = 0
     for i in range(len(hList)):
@@ -92,10 +93,14 @@ def classifier(B):
         FalseCount = 0
         for j in range(len(B)):
             x = B[j][1:]
-            if (np.sign(np.dot(hList[i].T, x)+c[i]) < -1 and B[j][0] == 0) or (np.sign(np.dot(hList[i].T, x)+c[i]) > 1 and B[j][0] > 0):
+            if (np.sign(np.dot(hList[i].T, x)+cList[i]) < -1 and B[j][0] == 0) or (np.sign(np.dot(hList[i].T, x)+cList[i]) > 1 and B[j][0] > 0):
                 TrueCount += 1
             else:
                 FalseCount += 1
+    return TrueCount, FalseCount
+
+a,b = classifier()
+print(a, b)
 
 # Initial mu
 mu = 1
@@ -109,11 +114,16 @@ mu = 1
 #A, B = SPFM.Read_Data(NumberDigit * nine, NumberDigit * nine, NumberDigit * nine)
 #x0init, mu0init, deltainit, timeInit = SPFM.update_x0(A, B, 5)
 #x = SPFM.long_path_method(A, B, lambd = 5, eps = 1e-3)
+"""
 lambdaList = [1, 5, 10]
 nDigitList = [1, 2, 3]
 hList = []
 cList = []
 timeList = []
+
+
+
+
 for lambd in lambdaList:
 
     for NumberDigit in nDigitList:
@@ -158,7 +168,7 @@ for lambd in lambdaList:
 print(hList)
 print(cList)
 update_hctime(hList, cList, timeList)
-
+"""
 """for lambd in lambdaList:
     for NumberDigit in nDigitList:
         A, B = SPFM.Read_Data(NumberDigit * nine, NumberDigit * nine, NumberDigit * nine)
