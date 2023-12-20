@@ -80,30 +80,30 @@ def load_hctime():
                 time = np.load(fileTime)
     return h, c, time
 
-def classifier():
-    hList, cList,timeList = load_hctime()
-    #print(hList[0])
-    #print(cList[0])
-    #print(timeList[0])
+def classifier(h,c):
+    '''Let's have the classifier take in input h and c, then we can iterate outside of this function'''
+
+    #cList, hList, timeList = load_hctime()
+
     B=SPFM.Read_Data_Test(0)
-    ResultList=np.zeros(())
+
     TrueCount = 0
     FalseCount = 0
-    for i in range(len(hList)):
-        TrueCount = 0
-        FalseCount = 0
-        for j in range(len(B)):
 
-            x = B[j][1:]
-            if (np.sign(np.dot(hList[i].T, x)+cList[i]) < -1 and B[j][0] == 0) or (np.sign(np.dot(hList[i].T, x)+cList[i]) > 1 and B[j][0] > 0):
-                TrueCount += 1
-            else:
-                FalseCount += 1
-        print(TrueCount, FalseCount)
-    return 0
+    # Classify all the testing set
+    for j in range(len(B)):
 
-a,b = classifier()
-print(a, b)
+        # Get the datapoint
+        x = B[j][1:]
+        # Classify
+        if (np.sign(np.dot(h, x) + h) < 0 and B[j][0] == 0) or (
+                np.sign(np.dot(h, x) + c) > 0 and B[j][0] > 0):
+            TrueCount += 1
+        else:
+            FalseCount += 1
+    print(TrueCount, FalseCount)
+
+    return [TrueCount,FalseCount]
 
 # Initial mu
 mu = 1
@@ -193,3 +193,4 @@ update_hctime(hList, cList, timeList)
 #x = SPFM.short_path_method(A, B, lambd=5, eps=1e-3)
 
 #x = SPFM.long_path_method(A, B, lambd = 5, eps = 1e-3)
+
