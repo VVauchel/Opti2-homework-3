@@ -67,7 +67,7 @@ def Read_Data_Test(n):
 
     #print(B_data[5][0])
     # Normalize B [0.1, 1]
-    B_fin=np.zeros((len(B_data), len(B_data[0])))
+    B_fin = np.zeros((len(B_data), len(B_data[0])))
     B_fin[:][1:] = np.asfarray(B_data[1:, :]) * fac + 0.01
     B_fin[:][0] = B_data[:][0]
     print(B_fin[5][0])

@@ -80,30 +80,36 @@ def load_hctime():
                 time = np.load(fileTime)
     return h, c, time
 
-def classifier():
-    hList, cList,timeList = load_hctime()
-    #print(hList[0])
-    #print(cList[0])
-    #print(timeList[0])
-    B=SPFM.Read_Data_Test(0)
-    ResultList=np.zeros(())
+def classifier(h,c):
+    '''Let's have the classifier take in input h and c, then we can iterate outside of this function'''
+
+    #cList, hList, timeList = load_hctime()
+    B = SPFM.Read_Data_Test(0)
+
+
     TrueCount = 0
     FalseCount = 0
-    for i in range(len(hList)):
-        TrueCount = 0
-        FalseCount = 0
-        for j in range(len(B)):
+    # Classify all the testing set
+    for j in range(len(B)):
 
-            x = B[j][1:]
-            if (np.sign(np.dot(hList[i].T, x)+cList[i]) < -1 and B[j][0] == 0) or (np.sign(np.dot(hList[i].T, x)+cList[i]) > 1 and B[j][0] > 0):
-                TrueCount += 1
-            else:
-                FalseCount += 1
-        print(TrueCount, FalseCount)
-    return 0
+        # Get the datapoint
+        x = B[j][1:]
+        # Classify
+        #print(np.sign(np.dot(h, x) + h))
+        if (np.sign(np.dot(h, x) + c) < 0 and B[j][0] == 0) or (
+                np.sign(np.dot(h, x) + c) > 0 and B[j][0] > 0):
+            TrueCount += 1
+        else:
+            FalseCount += 1
+    #print(TrueCount, FalseCount)
 
-a,b = classifier()
-print(a, b)
+    return [TrueCount, FalseCount]
+hList, cList, timeList=load_hctime()
+for i in range(len(hList)):
+    #print(hList[i])
+    #print(cList[i])
+    a = classifier(hList[i], cList[i])
+    print(a)
 
 # Initial mu
 mu = 1
@@ -174,6 +180,7 @@ print(hList)
 print(cList)
 update_hctime(hList, cList, timeList)
 """
+
 """for lambd in lambdaList:
     for NumberDigit in nDigitList:
         A, B = SPFM.Read_Data(NumberDigit * nine, NumberDigit * nine, NumberDigit * nine)
