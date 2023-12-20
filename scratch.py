@@ -82,11 +82,11 @@ def load_hctime():
                 time = np.load(fileTime)
     return h, c, time
 
-def classifier(h,c):
+def classifier(h,c,B):
     '''Let's have the classifier take in input h and c, then we can iterate outside of this function'''
 
     #cList, hList, timeList = load_hctime()
-    B = SPFM.Read_Data_Test(0)
+
 
 
     TrueCount = 0
@@ -97,15 +97,15 @@ def classifier(h,c):
         # Get the datapoint
         x = B[j][1:]
         # Classify
-        #print(np.sign(np.dot(h, x) + h))
         if (np.sign(np.dot(h, x) + c) < 0 and B[j][0] == 0) or (
                 np.sign(np.dot(h, x) + c) > 0 and B[j][0] > 0):
             TrueCount += 1
         else:
             FalseCount += 1
-    #print(TrueCount, FalseCount)
+
 
     return [TrueCount, FalseCount]
+
 #hList, cList, timeList=load_hctime()
 
 # Replace 'your_saved_file.csv' with the actual filename you used
@@ -122,6 +122,28 @@ for i in range(result_df.shape[0]):
     c = result_df['c'][i]
     a = classifier(h,c)[0]
     print(a)
+
+hList, cList, timeList=load_hctime()
+B = SPFM.Read_Data_Test(0)
+for i in range(len(hList)):
+    #print(hList[i])
+    #print(cList[i])
+    a = classifier(hList[i], cList[i], B)
+    print(a)
+print(timeList)
+# Initial mu
+mu = 1
+#print(f'F = {num_F(mu, h, c, p, s, t)}')
+
+# Initialize algorithm
+
+#x0, mu_0, delta = SPFM.initialization(A, B, lambd=5)
+#print(f'x0 = {x0[:10]}, delta = {delta}')
+#NumberDigit=1
+#A, B = SPFM.Read_Data(NumberDigit * nine, NumberDigit * nine, NumberDigit * nine)
+#x0init, mu0init, deltainit, timeInit = SPFM.update_x0(A, B, 5)
+#x = SPFM.long_path_method(A, B, lambd = 5, eps = 1e-3)
+
 """
 lambdaList = [1, 5, 10]
 nDigitList = [1, 2, 3]
