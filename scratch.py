@@ -72,13 +72,13 @@ def update_hctime(h,c,time):
                 np.save(fileTime, time)
 
 def load_hctime():
-    with open('c.txt', 'rb') as fileH:
-        with open('h.txt', 'rb') as fileC:
+    with open('h.txt', 'rb') as fileH:
+        with open('c.txt', 'rb') as fileC:
             with open('time.txt', 'rb') as fileTime:
                 h = np.load(fileH)
                 c = np.load(fileC)
                 time = np.load(fileTime)
-    return c, h, time
+    return h, c, time
 
 def classifier():
     hList, cList,timeList = load_hctime()
@@ -86,18 +86,21 @@ def classifier():
     #print(cList[0])
     #print(timeList[0])
     B=SPFM.Read_Data_Test(0)
+    ResultList=np.zeros(())
     TrueCount = 0
     FalseCount = 0
     for i in range(len(hList)):
         TrueCount = 0
         FalseCount = 0
         for j in range(len(B)):
+
             x = B[j][1:]
             if (np.sign(np.dot(hList[i].T, x)+cList[i]) < -1 and B[j][0] == 0) or (np.sign(np.dot(hList[i].T, x)+cList[i]) > 1 and B[j][0] > 0):
                 TrueCount += 1
             else:
                 FalseCount += 1
-    return TrueCount, FalseCount
+        print(TrueCount, FalseCount)
+    return 0
 
 a,b = classifier()
 print(a, b)
