@@ -266,7 +266,7 @@ def load_x0():
 
 
 
-def classifierB(h, c, B):
+def classifier(h, c, B):
     '''Let's have the classifier take in input h, c and B then we can iterate outside of this function'''
 
     #cList, hList, timeList = load_hctime()
@@ -288,7 +288,7 @@ def classifierB(h, c, B):
     return [TrueCount, FalseCount]
 
 
-def classifier(h, c):
+def classifierB(h, c):
 
     '''Let's have the classifier take in input h and c, then we can iterate outside of this function'''
 
