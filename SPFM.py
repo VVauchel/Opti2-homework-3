@@ -2,6 +2,7 @@ import numpy as np
 import Fun_Jac_Hess_v2 as fun
 import math
 from time import perf_counter
+import NumpyFile
 
 def Read_Data(n_a, n_b):
     image_size = 28  # width and length
@@ -49,8 +50,8 @@ def Read_Data(n_a, n_b):
 
     return A_fin, B_fin
 
-def Read_Data_Test(n):
 
+def Read_Data_Test(n):
     # returns normalized B form [digit, x]
     image_size = 28  # width and length
     no_of_different_labels = 10  # i.e. 0, 1, 2, 3, ..., 9
@@ -140,6 +141,7 @@ def short_path_method(A, B, lambd=5, eps=1e-3):
     time = perf_counter() - start
     return x, time
 
+
 def long_path_method(A, B,theta, lambd=5, eps=1e-3,tau=.25):
     '''This function implements the short path following method to optimize
     the problem in Homework 3 of the course Optimization Models and methods II
@@ -182,6 +184,7 @@ def long_path_method(A, B,theta, lambd=5, eps=1e-3,tau=.25):
             print(f'delta = {delta}')
 
     return x, perf_counter()-start
+
 
 def initialization(A, B, lambd):
     '''First draft: chose an interior point x_0 and find a mu_0 such that
@@ -239,6 +242,7 @@ def damped_N(x0, A, B, lambd, mu=1):
     # Attentiom: returned delta is the one associated to x0, not to x
     return x, delta
 
+
 def update_x0(A, B, lambd=5):
     with open('x0.txt', 'wb') as fileX0:
         with open('mu0.txt', 'wb') as fileMu:
@@ -250,6 +254,7 @@ def update_x0(A, B, lambd=5):
                 np.save(fileDelta, delta)
     return x0, mu_0, delta, perf_counter()-start
 
+
 def load_x0():
     with open('x0.txt', 'rb') as fileX0:
         with open('mu0.txt', 'rb') as fileMu:
@@ -258,6 +263,61 @@ def load_x0():
                 mu_0 = np.load(fileMu)
                 delta = np.load(fileDelta)
     return x0, mu_0, delta
+
+
+def classifierB(h, c, B):
+    '''Let's have the classifier take in input h, c and B then we can iterate outside of this function'''
+
+    #cList, hList, timeList = load_hctime()
+
+
+
+    TrueCount = 0
+    FalseCount = 0
+    # Classify all the testing set
+    for j in range(len(B)):
+        # Get the datapoint
+        x = B[j][1:]
+        # Classify
+        if (np.sign(np.dot(h, x) + c) < 0 and B[j][0] == 0) or (
+                np.sign(np.dot(h, x) + c) > 0 and B[j][0] > 0):
+            TrueCount += 1
+        else:
+            FalseCount += 1
+    return [TrueCount, FalseCount]
+
+
+def classifier(h, c):
+    '''Let's have the classifier take in input h and c, then we can iterate outside of this function'''
+
+    #cList, hList, timeList = load_hctime()
+
+    B = Read_Data_Test(0)
+    TrueCount = 0
+    FalseCount = 0
+    # Classify all the testing set
+    for j in range(len(B)):
+        # Get the datapoint
+        x = B[j][1:]
+        # Classify
+        if (np.sign(np.dot(h, x) + c) < 0 and B[j][0] == 0) or (
+                np.sign(np.dot(h, x) + c) > 0 and B[j][0] > 0):
+            TrueCount += 1
+        else:
+            FalseCount += 1
+    return [TrueCount, FalseCount]
+
+
+def TestClassifier():
+    hList, cList, timeList = NumpyFile.load_short_hctime()
+    B = Read_Data_Test(0)
+    for i in range(len(hList)):
+        #print(hList[i])
+        #print(cList[i])
+        a = classifier(hList[i], cList[i], B)
+        print(a)
+    print(timeList)
+
 '''
 nine = 9
 A, B = Read_Data(1*nine, 1*nine, 1*nine)

@@ -3,6 +3,10 @@ import pandas as pd
 import Fun_Jac_Hess_v2 as fun
 import SPFM as SPFM
 from datetime import datetime
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+
 
 Num_Dig = [3, 5, 10]
 theta = [.9, .7]

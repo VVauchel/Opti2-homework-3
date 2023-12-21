@@ -6,6 +6,7 @@ import SPFM as SPFM
 from time import perf_counter
 import pandas as pd
 import ast
+import NumpyFile
 
 nine = 9
 #lambd = 5
@@ -64,48 +65,6 @@ print(type(H))
 print(np.array_equal(H, H.T))
 print(np.linalg.eigvals(H))
 '''
-
-def update_hctime(h,c,time):
-    with open('h.txt', 'wb') as fileH:
-        with open('c.txt', 'wb') as fileC:
-            with open('time.txt', 'wb') as fileTime:
-                np.save(fileH, h)
-                np.save(fileC, c)
-                np.save(fileTime, time)
-
-def load_hctime():
-    with open('h.txt', 'rb') as fileH:
-        with open('c.txt', 'rb') as fileC:
-            with open('time.txt', 'rb') as fileTime:
-                h = np.load(fileH)
-                c = np.load(fileC)
-                time = np.load(fileTime)
-    return h, c, time
-
-def classifier(h,c,B):
-    '''Let's have the classifier take in input h and c, then we can iterate outside of this function'''
-
-    #cList, hList, timeList = load_hctime()
-
-
-
-    TrueCount = 0
-    FalseCount = 0
-    # Classify all the testing set
-    for j in range(len(B)):
-
-        # Get the datapoint
-        x = B[j][1:]
-        # Classify
-        if (np.sign(np.dot(h, x) + c) < 0 and B[j][0] == 0) or (
-                np.sign(np.dot(h, x) + c) > 0 and B[j][0] > 0):
-            TrueCount += 1
-        else:
-            FalseCount += 1
-
-
-    return [TrueCount, FalseCount]
-
 #hList, cList, timeList=load_hctime()
 
 # Replace 'your_saved_file.csv' with the actual filename you used
@@ -120,19 +79,21 @@ for i in range(result_df.shape[0]):
     # Convert the string to a NumPy array
     h = np.fromstring(h_string.replace('[', '').replace(']', ''), sep=' ')
     c = result_df['c'][i]
-    a = classifier(h,c)[0]
+    a = SPFM.classifier(h, c)[0]
     print(a)
 
-hList, cList, timeList=load_hctime()
+hList, cList, timeList = NumpyFile.load_hctime()
 B = SPFM.Read_Data_Test(0)
 for i in range(len(hList)):
     #print(hList[i])
     #print(cList[i])
-    a = classifier(hList[i], cList[i], B)
+    a = SPFM.classifier(hList[i], cList[i], B)
     print(a)
 print(timeList)
+
 # Initial mu
 mu = 1
+#TestClassifier()
 #print(f'F = {num_F(mu, h, c, p, s, t)}')
 
 # Initialize algorithm
@@ -143,66 +104,8 @@ mu = 1
 #A, B = SPFM.Read_Data(NumberDigit * nine, NumberDigit * nine, NumberDigit * nine)
 #x0init, mu0init, deltainit, timeInit = SPFM.update_x0(A, B, 5)
 #x = SPFM.long_path_method(A, B, lambd = 5, eps = 1e-3)
-
 """
-lambdaList = [1, 5, 10]
-nDigitList = [1, 2, 3]
-hList = []
-cList = []
-timeList = []
-
-#SPFM.update_x0(A,B)
-#x = SPFM.short_path_method(A, B, lambd = 5, eps = 1e-3)
-
-
-
 for lambd in lambdaList:
-
-    for NumberDigit in nDigitList:
-        A, B = SPFM.Read_Data(NumberDigit * nine, NumberDigit * nine, NumberDigit * nine)
-        x0init, mu0init, deltainit, timeInit = SPFM.update_x0(A, B, lambd)
-        with open(f'init_long_{NumberDigit}digit_{lambd}lambda.txt', 'w') as file:
-            file.write("NDigit;x0;mu0;delta;time\n")
-            file.write(f"{NumberDigit};{x0init};{mu0init};{deltainit};{timeInit}\n")
-
-        exponentList = [1e1, 5e0]
-        with open(f'solutions_long_{NumberDigit}digit_{lambd}lambda.txt', 'w') as file:
-            file.write("eps;solution;time\n")
-            for epsilon in exponentList:
-                x, time = SPFM.long_path_method(A, B, lambd=lambd, eps=epsilon)
-                n = len(A[0, :])
-                n_a = len(A)
-                h = x[:n]
-
-                print(h)
-
-                if np.any(hList):
-                    hList = np.concatenate((hList, [h]))
-                else:
-                    hList = [h]
-                print(hList)
-                c = x[n]
-                if np.any(cList):
-                    cList = np.concatenate((cList, [c]))
-                else:
-                    cList = [c]
-                print(cList)
-                #p = x[n + 1]
-                #s = x[n + 2:n + 2 + n_a]
-                #t = x[n + 2 + n_a:]
-                if np.any(timeList):
-                    timeList = np.concatenate((timeList, [time]))
-                else:
-                    timeList = [time]
-
-                print(timeList)
-                file.write(f"{epsilon};{h};{c};{time}\n")
-print(hList)
-print(cList)
-update_hctime(hList, cList, timeList)
-"""
-
-"""for lambd in lambdaList:
     for NumberDigit in nDigitList:
         A, B = SPFM.Read_Data(NumberDigit * nine, NumberDigit * nine, NumberDigit * nine)
         x0init, mu0init, deltainit, timeInit = SPFM.update_x0(A, B, lambd)
