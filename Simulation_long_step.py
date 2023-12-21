@@ -8,7 +8,7 @@ import seaborn as sns
 
 
 
-Num_Dig = [5]
+Num_Dig = [7]
 theta = [.7]
 tau_range = [.1]
 lambd_range = [1]
@@ -41,7 +41,7 @@ for i in Num_Dig:
                 c = x[len(A[0, :])]
 
                 # Append a new row to the DataFrame
-                result_df = result_df._append({'Num_Dig': i*9, 'lambda': lambd, 'tau': tau,
+                result_df = result_df.append({'Num_Dig': i*9, 'lambda': lambd, 'tau': tau,
                                               'theta': t, 'eps': eps, 'h': h, 'c': c, 'time': time},
                                              ignore_index=True)
 

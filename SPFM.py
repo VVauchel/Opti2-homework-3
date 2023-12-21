@@ -72,7 +72,7 @@ def Read_Data_Test(n):
         B_fin[i][0] = B_data[i][0]
         for j in range(1, len(B_data[0])):
             B_fin[i][j] = np.asfarray(B_data[i, j]) * fac + 0.01
-    print(B_fin[10:15][:5])
+    #print(B_fin[10:15][:5])
     return B_fin
 
 

@@ -68,7 +68,7 @@ print(np.linalg.eigvals(H))
 #hList, cList, timeList=load_hctime()
 
 # Replace 'your_saved_file.csv' with the actual filename you used
-filename = 'results_20231220192908.csv'
+filename = 'results_20231221174320.csv'
 
 # Read the CSV file into a DataFrame
 result_df = pd.read_csv(filename)
@@ -79,7 +79,7 @@ for i in range(result_df.shape[0]):
     # Convert the string to a NumPy array
     h = np.fromstring(h_string.replace('[', '').replace(']', ''), sep=' ')
     c = result_df['c'][i]
-    a = SPFM.classifier(h, c)[0]
+    a = SPFM.classifierB(h, c)[0]
     print(a)
 
 hList, cList, timeList = NumpyFile.load_hctime()
