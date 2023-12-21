@@ -258,6 +258,31 @@ def load_x0():
                 mu_0 = np.load(fileMu)
                 delta = np.load(fileDelta)
     return x0, mu_0, delta
+
+def classifier(h,c,B):
+    '''Let's have the classifier take in input h and c, then we can iterate outside of this function'''
+
+    #cList, hList, timeList = load_hctime()
+
+
+
+    TrueCount = 0
+    FalseCount = 0
+    # Classify all the testing set
+    for j in range(len(B)):
+
+        # Get the datapoint
+        x = B[j][1:]
+        # Classify
+        if (np.sign(np.dot(h, x) + c) < 0 and B[j][0] == 0) or (
+                np.sign(np.dot(h, x) + c) > 0 and B[j][0] > 0):
+            TrueCount += 1
+        else:
+            FalseCount += 1
+
+
+    return [TrueCount, FalseCount]
+
 '''
 nine = 9
 A, B = Read_Data(1*nine, 1*nine, 1*nine)
