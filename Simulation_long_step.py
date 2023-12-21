@@ -8,13 +8,13 @@ import seaborn as sns
 
 
 
-Num_Dig = [3, 5, 10]
-theta = [.9, .7]
-tau_range = [.25]
-lambd_range = [.1, 1, 10, 100]
+Num_Dig = [5]
+theta = [.7]
+tau_range = [.1]
+lambd_range = [1]
 
-# Replace 'your_saved_file.csv' with the actual filename you used
-filename = 'results_20231220192908.csv'
+# Consider the file with the data you want to get
+filename = 'results_20231221120610.csv'
 
 # Read the CSV file into a DataFrame
 result_df = pd.read_csv(filename)
@@ -34,7 +34,7 @@ for i in Num_Dig:
                 # Evaluate theta from t and number of digits
                 print(f'Running Num_digit = {i},lambda = {lambd}, tau = {tau}, theta_fac = {t}')
 
-                eps = 1
+                eps = .1
                 x, time = SPFM.long_path_method(A, B, t, lambd, eps, tau)
 
                 h = x[:len(A[0, :])]

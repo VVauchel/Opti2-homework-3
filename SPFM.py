@@ -265,6 +265,7 @@ def load_x0():
     return x0, mu_0, delta
 
 
+
 def classifierB(h, c, B):
     '''Let's have the classifier take in input h, c and B then we can iterate outside of this function'''
 
@@ -288,15 +289,19 @@ def classifierB(h, c, B):
 
 
 def classifier(h, c):
+
     '''Let's have the classifier take in input h and c, then we can iterate outside of this function'''
 
     #cList, hList, timeList = load_hctime()
 
+
     B = Read_Data_Test(0)
+
     TrueCount = 0
     FalseCount = 0
     # Classify all the testing set
     for j in range(len(B)):
+
         # Get the datapoint
         x = B[j][1:]
         # Classify
@@ -305,6 +310,7 @@ def classifier(h, c):
             TrueCount += 1
         else:
             FalseCount += 1
+
     return [TrueCount, FalseCount]
 
 
@@ -317,6 +323,10 @@ def TestClassifier():
         a = classifier(hList[i], cList[i], B)
         print(a)
     print(timeList)
+
+
+    return [TrueCount, FalseCount]
+
 
 '''
 nine = 9
