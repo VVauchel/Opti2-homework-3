@@ -3,7 +3,7 @@ import pandas as pd
 import Fun_Jac_Hess_v2 as fun
 import SPFM as SPFM
 from datetime import datetime
-#from scratch import update_short_hctime
+
 
 
 def MakeNumpyFileLong():
@@ -13,9 +13,6 @@ def MakeNumpyFileLong():
     cList = []
     timeList = []
     nine=9
-
-    #SPFM.update_x0(A,B)
-    #x = SPFM.short_path_method(A, B, lambd = 5, eps = 1e-3)
 
     for lambd in lambdaList:
 
@@ -35,31 +32,24 @@ def MakeNumpyFileLong():
                     n_a = len(A)
                     h = x[:n]
 
-                    print(h)
-
                     if np.any(hList):
                         hList = np.concatenate((hList, [h]))
                     else:
                         hList = [h]
-                    print(hList)
+
                     c = x[n]
                     if np.any(cList):
                         cList = np.concatenate((cList, [c]))
                     else:
                         cList = [c]
-                    print(cList)
-                    #p = x[n + 1]
-                    #s = x[n + 2:n + 2 + n_a]
-                    #t = x[n + 2 + n_a:]
+
                     if np.any(timeList):
                         timeList = np.concatenate((timeList, [time]))
                     else:
                         timeList = [time]
-
                     print(timeList)
                     file.write(f"{epsilon};{h};{c};{time}\n")
-    print(hList)
-    print(cList)
+
     update_hctime(hList, cList, timeList)
 
 def MakeNumpyFileShort():
@@ -69,8 +59,7 @@ def MakeNumpyFileShort():
     hList = []
     cList = []
     timeList = []
-    #SPFM.update_x0(A,B)
-    #x = SPFM.short_path_method(A, B, lambd = 5, eps = 1e-3)
+
     for lambd in lambdaList:
 
         for NumberDigit in nDigitList:
@@ -90,32 +79,24 @@ def MakeNumpyFileShort():
                     n_a = len(A)
                     h = x[:n]
 
-                    #print(h)
 
                     if np.any(hList):
                         hList = np.concatenate((hList, [h]))
                     else:
                         hList = [h]
-                    #print(hList)
                     c = x[n]
                     if np.any(cList):
                         cList = np.concatenate((cList, [c]))
                     else:
                         cList = [c]
-                    #print(cList)
-                    #p = x[n + 1]
-                    #s = x[n + 2:n + 2 + n_a]
-                    #t = x[n + 2 + n_a:]
+
                     if np.any(timeList):
                         timeList = np.concatenate((timeList, [time]))
                     else:
                         timeList = [time]
 
                     print(f'solutions_short_{NumberDigit}digit_{lambd}lambda.txt')
-                    print(time)
                     file.write(f"{epsilon};{h};{c};{time}\n")
-    print(hList)
-    print(cList)
     update_short_hctime(hList, cList, timeList)
 
 

@@ -9,9 +9,7 @@ import ast
 import NumpyFile
 
 nine = 9
-#lambd = 5
 
-#NumberDigit = 1
 
 
 '''
@@ -85,16 +83,12 @@ for i in range(result_df.shape[0]):
 hList, cList, timeList = NumpyFile.load_hctime()
 B = SPFM.Read_Data_Test(0)
 for i in range(len(hList)):
-    #print(hList[i])
-    #print(cList[i])
     a = SPFM.classifier(hList[i], cList[i], B)
     print(a)
 print(timeList)
 
 # Initial mu
 mu = 1
-#TestClassifier()
-#print(f'F = {num_F(mu, h, c, p, s, t)}')
 
 # Initialize algorithm
 

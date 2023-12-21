@@ -5,34 +5,19 @@ from time import perf_counter
 import NumpyFile
 
 def Read_Data(n_a, n_b):
-    image_size = 28  # width and length
-    no_of_different_labels = 10  # i.e. 0, 1, 2, 3, ..., 9
-    image_pixels = image_size * image_size
     data_path = "data/mnist/"
     train_data = np.loadtxt(data_path + "mnist_train.csv",
                             delimiter=",")
 
     # Extract 0s from the training set
-    # print(train_data[0])
+
     A = train_data[train_data[:, 0] == 0.]
 
     # Delete the first column
     A = A[0:n_a, 1:]
 
-    # Only keep some columns such that first element is non zero (for start 10 of them)
-    # non_zero_ind = np.nonzero(A[0, :])[0]
-    # indices = np.random.choice(non_zero_ind, size=n, replace=False)
-    # A = A[:, indices]
 
-    # ***************************Old B
-    # Extract non-0s
-    # B = train_data[train_data[:, 0] != 0.]
-    # Delete first column
-    # B = B[0:n_b, 1:]
-    # Keep the same columns you kept in A
-    # B = B[:, indices]
 
-    # ***************************New B
     B_data = np.zeros((int(n_b), len(train_data[0])))
     count = np.ones(10) * n_b / 9  # count the number of digit i at index [i]
     totalcount = n_b  # count the lines in B
@@ -53,9 +38,7 @@ def Read_Data(n_a, n_b):
 
 def Read_Data_Test(n):
     # returns normalized B form [digit, x]
-    image_size = 28  # width and length
-    no_of_different_labels = 10  # i.e. 0, 1, 2, 3, ..., 9
-    image_pixels = image_size * image_size
+
     data_path = "data/mnist/"
     test_data = np.loadtxt(data_path + "mnist_test.csv",
                            delimiter=",")
@@ -72,7 +55,7 @@ def Read_Data_Test(n):
         B_fin[i][0] = B_data[i][0]
         for j in range(1, len(B_data[0])):
             B_fin[i][j] = np.asfarray(B_data[i, j]) * fac + 0.01
-    #print(B_fin[10:15][:5])
+
     return B_fin
 
 
@@ -92,7 +75,6 @@ def short_path_method(A, B, lambd=5, eps=1e-3):
     # Number of points in B
     n_b = len(B)
 
-    #x0 = np.array([0 for i in range(n)] + [0] + [5] + [2 for i in range(n_a)] + [2 for i in range(n_b)])
     x0, mu_0, _ = load_x0()
 
     # Choose tau
@@ -131,8 +113,6 @@ def short_path_method(A, B, lambd=5, eps=1e-3):
         if math.isnan(delta):
             print(f'F = {fun.New_Obj(x,mu,lambd,A,B)}')
             print(f'eig(H) = {np.linalg.eigvals(H)}')
-            #print(f'J = {J}')
-            #print(f'Newton = {newton}')
             print(f'scalar prod = {np.dot(J, newton)}')
             break
 
@@ -151,7 +131,7 @@ def long_path_method(A, B,theta, lambd=5, eps=1e-3,tau=.25):
             B: set 2, same as A
     '''
 
-    start=perf_counter()
+    start = perf_counter()
 
     # Number of features
     n = len(A[0, :])
@@ -160,7 +140,6 @@ def long_path_method(A, B,theta, lambd=5, eps=1e-3,tau=.25):
     # Number of points in B
     n_b = len(B)
 
-    #x0 = np.array([0 for i in range(n)] + [0] + [5] + [2 for i in range(n_a)] + [2 for i in range(n_b)])
     x0, mu_0, _ = load_x0()
 
     # Choose v
@@ -228,8 +207,6 @@ def damped_N(x0, A, B, lambd, mu=1):
     newton = np.linalg.solve(H, J)
 
     # Evaluate delta
-    #    print(G)
-    #    print(np.dot(G, n))
     delta = np.sqrt(np.dot(J, newton))
 
     # Break if delta is less then 1
@@ -265,13 +242,10 @@ def load_x0():
     return x0, mu_0, delta
 
 
-
 def classifier(h, c, B):
     '''Let's have the classifier take in input h, c and B then we can iterate outside of this function'''
 
     #cList, hList, timeList = load_hctime()
-
-
 
     TrueCount = 0
     FalseCount = 0
@@ -293,15 +267,11 @@ def classifierB(h, c):
     '''Let's have the classifier take in input h and c, then we can iterate outside of this function'''
 
     #cList, hList, timeList = load_hctime()
-
-
     B = Read_Data_Test(0)
-
     TrueCount = 0
     FalseCount = 0
     # Classify all the testing set
     for j in range(len(B)):
-
         # Get the datapoint
         x = B[j][1:]
         # Classify
@@ -310,7 +280,6 @@ def classifierB(h, c):
             TrueCount += 1
         else:
             FalseCount += 1
-
     return [TrueCount, FalseCount]
 
 
@@ -318,20 +287,9 @@ def TestClassifier():
     hList, cList, timeList = NumpyFile.load_short_hctime()
     B = Read_Data_Test(0)
     for i in range(len(hList)):
-        #print(hList[i])
-        #print(cList[i])
         a = classifier(hList[i], cList[i], B)
         print(a)
     print(timeList)
+    return 0
 
-
-    return [TrueCount, FalseCount]
-
-
-'''
-nine = 9
-A, B = Read_Data(1*nine, 1*nine, 1*nine)
-update_x0(A, B, lambd=5)
-x0, mu_0, delta = load_x0() '''
-#print(f'delta = {delta}')
 

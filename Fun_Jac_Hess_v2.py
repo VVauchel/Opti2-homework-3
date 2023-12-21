@@ -250,31 +250,3 @@ def Hessian(x, lambd, A, B):
     return H
 
 
-'''
-# Number of features
-n = len(A[0, :])
-# Number of points in A
-n_a = len(A)
-# Number of points in B
-n_b = len(B)
-
-# Define feasible x0 and try to compute a damped newton step
-x0 = np.array([0 for i in range(n)] + [0] + [5] + [2 for i in range(n_a)] + [2 for i in range(n_b)])
-print(f'x0 = {x0}')
-
-
-# Define mu
-mu = 1
-
-# Define parameter lambd
-lambd = 5
-
-Val = New_Obj(x0,mu,lambd,A,B)
-print(f'F = {Val}')
-
-Jac = Jacobian(x0,mu,lambd,A,B)
-print(f'Jac = {Jac}')
-
-Hes = Hessian(x0,mu,lambd,A,B)
-print(f'Hes = {Hes}')
-'''
